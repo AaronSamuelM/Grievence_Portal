@@ -10,18 +10,21 @@ const Home = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="bg-blue-800 text-white p-4 shadow-md">
-          <h1 className="text-xl font-bold">
-            Government of Jharkhand – Grievance Portal
-          </h1>
+        <header className="bg-[#2B4C7E] text-white p-4 shadow-md">
+          <p className="text-5xl font-bold text-[#E5E7EB]">
+            Government of Jharkhand <br></br>
+          </p>
+          <p className="text-3xl font-normal text-[#E5E7EB]">
+            Grievance Portal
+          </p>
         </header>
 
         {/* Content Area */}
-        <main className="flex flex-1 p-6 bg-gray-100">
+        <main className="flex flex-1 p-6 bg-[#ddd]">
           {/* About Section */}
-          <div className="flex-1 bg-white  p-6 rounded-lg shadow">
+          <div className="flex-1 bg-[#ccc]  p-6 rounded-lg shadow">
             <h2 className="text-black text-4xl font-semibold ">About</h2>
-            <p className="text-gray-700 text-3xl">
+            <p className="text-gray-700 text-2xl">
               The Grievance Portal is designed to streamline the process of
               raising, tracking, and resolving complaints for the citizens of
               Jharkhand. This platform ensures transparency, accountability, and
@@ -30,20 +33,20 @@ const Home = () => {
           </div>
 
           {/* Useful Links */}
-          <aside className="w-64  ml-6 bg-blue-800 p-6 rounded-lg shadow">
-            <h2 className="text-lg font-semibold mb-4">Useful Links</h2>
-            <ul className="list-disc list-inside text-white space-y-2">
+          <div className="w-64  ml-6 bg-[#ccc] p-6 rounded-lg shadow">
+            <h2 className="text-lg text-black font-semibold mb-4">Useful Links</h2>
+            <ul className="list-disc list-inside text-black space-y-2">
                 <li >
-                  <a href="#" className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600">Jharkhand Govt Official Website</a>
+                  <a href="#" className=" underline text-black hover:text-gray-800 visited:text-purple-800">Jharkhand Govt Official Website</a>
                 </li>
                 <li>
-                  <a  href="#" className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600" >Citizen Services</a>
+                  <a  href="#" className="underline text-black hover:text-gray-800 visited:text-purple-800" >Citizen Services</a>
                 </li>
                 <li>
-                  <a href="#" className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600">Helpline Numbers</a>
+                  <a href="#" className="underline text-black hover:text-gray-800 visited:text-purple-800">Helpline Numbers</a>
                 </li>
             </ul>
-          </aside>
+          </div>
         </main>
       </div>
     </div>
