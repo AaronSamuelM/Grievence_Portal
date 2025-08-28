@@ -43,15 +43,19 @@ const Sidebar = () => {
   return (
     <div
       className={`h-screen fixed flex flex-col transition-all duration-300 ${
-        darkMode ? "bg-[#1E293B] text-white" : "bg-[#2B4C7E] text-white shadow-[3px_0px_0px_0px_#DAA520]"
+        darkMode ? "bg-[#1E293B] text-white" : "bg-[#2B4C7E] text-white shadow-[5px_0px_14px_0px_rgba(0,_0,_0,_0.1)]"
       } ${isOpen ? "w-56" : "w-16"}`}
     >
       {/* Toggle Button */}
       <button
-        className="p-4 focus:outline-none"
+        className="p-4 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg focus:outline-none transition-all duration-300"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <Menu size={28} />
+        <Menu className="hover:rotate-180 transition-all duration-300" size={28} />
+        <div className="flex items-center fixed pl-12 top-8 text-white">
+              {/* Show text only when expanded */}
+              {isOpen && <span className="fixed">Menu</span>}
+            </div>
       </button>
 
       {/* Menu Items */}
@@ -60,20 +64,20 @@ const Sidebar = () => {
           <Link
             key={idx}
             to={item.path}
-            className="flex items-center gap-3 px-3 py-2 hover:bg-[#3C5C90] rounded-md relative group"
+            className="flex items-center gap-3 px-3 py-2 hover:bg-[#3C5C90] hover:scale-110 hover:shadow-lg rounded-md relative group transition-all duration-300"
           >
             {/* White circle for icons */}
             <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#3e6299] text-[#DAA520]">
               {item.icon}
             </div>
-            <div className="text-white fixed pl-12">
+            <div className="text-white fixed pl-12 ">
               {/* Show text only when expanded */}
-              {isOpen && <span>{item.name}</span>}
+              {<span className={`transition-opacity duration-100 ease-in ${isOpen ? "opacity-100" : "opacity-0"}`} >{item.name}</span>}
             </div>
 
             {/* Tooltip on hover if collapsed */}
             {!isOpen && (
-              <span className="absolute left-14 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
+              <span className="fixed opa left-14 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-60 transition">
                 {item.name}
               </span>
             )}
@@ -86,16 +90,16 @@ const Sidebar = () => {
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
-          className="flex items-center gap-3 px-3 py-2 hover:bg-[#004080] rounded-md relative group"
+          className="flex items-center gap-3 px-3 py-2 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg rounded-md relative group transition-all duration-300"
         >
-          <div className="flex items-center justify-center w-8 h-8 rounded-full  text-white">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full  text-white ">
             {darkMode ? <Sun size={25} /> : <Moon size={25} />}
           </div>
-          <div className="text-white fixed pl-10">
+          <div className="text-white  fixed pl-10 ">
             {isOpen && <span>{darkMode ? "Light Mode" : "Dark Mode"}</span>}
           </div>
           {!isOpen && (
-            <span className="absolute left-14 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
+            <span className="absolute left-14 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-60 transition">
               {darkMode ? "Light Mode" : "Dark Mode"}
             </span>
           )}
@@ -104,7 +108,7 @@ const Sidebar = () => {
         {/* Login / Logout */}
         <button
           onClick={() => setIsLoggedIn(!isLoggedIn)}
-          className="flex items-center gap-3 px-3 py-2 hover:bg-[#004080] rounded-md relative group"
+          className="flex items-center gap-3 px-3 py-2 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg rounded-md relative group transition-all duration-300"
         >
           <div className="flex items-center justify-center w-8 h-8 rounded-full text-white">
             {isLoggedIn ? <LogOut size={25} /> : <LogIn size={25} />}
@@ -113,7 +117,7 @@ const Sidebar = () => {
             {isOpen && <span>{isLoggedIn ? "Logout" : "Login"}</span>}
           </div>
           {!isOpen && (
-            <span className="absolute left-14 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
+            <span className="absolute left-14 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-60 transition">
               {isLoggedIn ? "Logout" : "Login"}
             </span>
           )}

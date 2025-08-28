@@ -10,8 +10,8 @@ const Home = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="bg-[#2B4C7E] text-white p-4 shadow-md">
-          <p className="text-5xl font-bold text-[#E5E7EB]">
+        <header className="bg-[#22406d] text-white p-2 pl-5 shadow-md">
+          <p className="text-5xl font-bold  text-[#E5E7EB]">
             Government of Jharkhand <br></br>
           </p>
           <p className="text-3xl font-normal text-[#E5E7EB]">
