@@ -95,7 +95,7 @@ const Sidebar = () => {
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
-          className="flex items-center gap-3 px-3 py-2 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg rounded-md relative group transition-all duration-300"
+          className="flex items-center gap-3 px-3 py-2 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg rounded-md relative peer transition-all duration-300"
         >
           <div className="flex items-center justify-center w-8 h-8 rounded-full  text-white ">
             {darkMode ? <Sun size={25} /> : <Moon size={25} />}
@@ -103,16 +103,16 @@ const Sidebar = () => {
           <div className="text-white  fixed pl-10 ">
             {isOpen && <span>{darkMode ? "Light Mode" : "Dark Mode"}</span>}
           </div>
-          {!isOpen && (
-            <span className="absolute left-14 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-60 transition">
+        </button>
+        {!isOpen && (
+            <span className="absolute bottom-3.5 left-14 bg-black text-white text-xs px-2 py-1 rounded opacity-0 peer-hover:opacity-60 transition">
               {darkMode ? "Light Mode" : "Dark Mode"}
             </span>
           )}
-        </button>
 
         <Link 
         to={"/login"}
-        className="flex items-center gap-3 px-3 py-2 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg rounded-md relative group transition-all duration-300"
+        className="flex items-center gap-3 px-3 py-2 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg rounded-md relative peer transition-all duration-300"
         >
         <button
           onClick={() => setIsLoggedIn(!isLoggedIn) }
@@ -124,14 +124,16 @@ const Sidebar = () => {
           <div className="text-white bottom-3.5 absolute pl-10">
             {isOpen && <span>{isLoggedIn ? "Logout" : "Login"}</span>}
           </div>
-          {!isOpen && (
-            <span className="absolute left-14 bottom-3.5 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-60 transition">
+          
+        </button>
+        </Link>
+        
+      </div>
+      {!isOpen && (
+            <span className="absolute bottom-3.5 left-14 bg-black text-white text-xs px-2 py-1 rounded opacity-0 peer-hover:opacity-60 transition">
               {isLoggedIn ? "Logout" : "Login"}
             </span>
           )}
-        </button>
-        </Link>
-      </div>
     </div>
     </>
   );

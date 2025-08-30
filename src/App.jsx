@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 
 import Sidebar from "./components/Sidebar";
@@ -17,15 +17,19 @@ function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+  const isLoginPage = location.pathname === "/login";
   return (
     <>
       <div className="flex h-screen">
-        <Header1 />
-        <Sidebar />
+        {!isLoginPage && <Header1 />}
+        {!isLoginPage && <Sidebar />}
         <div className={darkMode ? "dark" : ""}>
           <div className="min-h-screen flex">
             {/* Main Content */}
-            <main className="flex-1 pl-16 pt-24 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 w-screen">
+            <main className={`flex-1 ${isLoginPage
+                ? "w-full h-full" // Full screen for login
+                : "flex-1 pl-16 pt-24 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 w-screen"}`}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/grievance" element={<Grievance />} />
