@@ -10,14 +10,7 @@ const Home = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="bg-[#22406d] text-white p-2 pl-5 shadow-md">
-          <p className="text-5xl font-bold  text-[#E5E7EB]">
-            Government of Jharkhand <br></br>
-          </p>
-          <p className="text-3xl font-normal text-[#E5E7EB]">
-            Grievance Portal
-          </p>
-        </header>
+        
 
         {/* Content Area */}
         <main className="flex flex-1 p-6 bg-[#ddd]">
