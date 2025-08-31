@@ -15,11 +15,11 @@ const Login = () => {
 
       {/* Main Content */}
       <div className="w-screen  fixed">
-        <button onClick={() => navigate(-1)} className="absolute cursor-pointer flex text-3xl pt-9 pb-8 pr-1 pl-2 font-normal bg-black text-[#E5E7EB] ">
+        <button onClick={() => navigate(-1)} className="absolute cursor-pointer flex text-3xl pt-9 pb-8 pr-3 pl-4 rounded-r-4xl font-normal bg-black text-[#E5E7EB] ">
             <Undo2 size={30} />
           </button>
         {/* Header */}
-        <header className="bg-[#22406d] text-white p-2 pl-12 shadow-md">
+        <header className="bg-[#22406d] text-white p-2 pl-21 shadow-md">
           <p className="text-5xl font-bold  text-[#E5E7EB]">
             Government of Jharkhand <br></br>
           </p>
@@ -32,9 +32,9 @@ const Login = () => {
         
 
         {/* Content Area */}
-        <main className="flex w-screen flex-1 items-center justify-center bg-[#ddd]">
+        <main className="flex w-screen  flex-1 items-center justify-center bg-[#ddd]">
           {/* Login Card */}
-          <div className="w-full max-w-md bg-[#ccc] p-8 rounded-lg shadow">
+          <div className="w-full max-w-md bg-[#ccc] p-8 border-2 border-[#3d3d3dab] rounded-[20px] shadow-2xl">
             <h2 className="text-3xl font-semibold text-black mb-6 text-center">
               Login
             </h2>

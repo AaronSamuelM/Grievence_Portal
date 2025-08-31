@@ -1,6 +1,6 @@
 // src/components/Sidebar.jsx
-import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   Home,
   FileText,
@@ -20,6 +20,17 @@ const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isHorizontal, setIsHorizontal] = useState(false);
+
+  // Auto detect screen size
+  useEffect(() => {
+    const handleResize = () => {
+      setIsHorizontal(window.innerWidth >= 1024); // lg breakpoint
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const toggleTheme = () => {
     setDarkMode(!darkMode);
@@ -27,40 +38,74 @@ const Sidebar = () => {
   };
 
   const menuItems = [
-    { name: "Home", icon: <Home size={25} />, path: "/" },
-    {
-      name: "Raise Grievance",
-      icon: <FileText size={25} />,
-      path: "/grievance",
-    },
-    { name: "Track Complaint", icon: <Search size={25} />, path: "/track" },
-    { name: "About", icon: <Info size={25} />, path: "/about" },
-    { name: "Change Language", icon: <Globe size={25} />, path: "/language" },
-    { name: "Contact Us", icon: <Phone size={25} />, path: "/contact" },
-    { name: "Settings", icon: <Settings size={25} />, path: "/settings" },
+    { name: "Home", icon: <Home size={22} />, path: "/" },
+    { name: "Raise Grievance", icon: <FileText size={22} />, path: "/grievance" },
+    { name: "Track Complaint", icon: <Search size={22} />, path: "/track" },
+    { name: "About", icon: <Info size={22} />, path: "/about" },
+    { name: "Change Language", icon: <Globe size={22} />, path: "/language" },
+    { name: "Contact Us", icon: <Phone size={22} />, path: "/contact" },
+    { name: "Settings", icon: <Settings size={22} />, path: "/settings" },
   ];
 
   return (
     <>
-    <div
-      className={`h-screen fixed flex flex-col transition-all duration-300 ${
+    
+      {/* Horizontal Mode */}
+      {isHorizontal ? (
+        <div
+          className={`w-full h-15 flex top-24 flex-row justify-center gap-6 py-3 shadow-md
+          ${darkMode ? "bg-[#1E293B] text-white" : "bg-[#2B4C7E] text-white"}`}
+        >
+          {menuItems.map((item, idx) => (
+            <Link
+              key={idx}
+              to={item.path}
+              className="text-white mt-1 hover:underline hover:scale-105 transition"
+            >
+              {item.name}
+            </Link>
+          ))}
+
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="px-3 py-1 rounded-md bg-black hover:bg-[#161616] transition"
+          >
+            {darkMode ? "Light Mode" : "Dark Mode"}
+          </button>
+
+          {/* Login/Logout */}
+          <button
+            onClick={() => setIsLoggedIn(!isLoggedIn)}
+            className="px-3 py-1 rounded-md bg-black hover:bg-[#161616] transition"
+          >
+            {isLoggedIn ? "Logout" : "Login"}
+          </button>
+        </div>
+      ) : (<>
+      <div className="w-screen sticky h-14 bg-[#2B4C7E]">
+      
+    
+        <div
+      className={`absolute flex flex-col transition-all duration-300 rounded-xl ${
         darkMode ? "bg-[#1E293B] text-white" : "bg-[#2B4C7E] text-white shadow-[5px_0px_14px_0px_rgba(0,_0,_0,_0.1)]"
-      } ${isOpen ? "w-56" : "w-16"}`}
+      } ${isOpen ? "w-56 h-99%" : "w-16"}`}
     >
       {/* Toggle Button */}
       <button
-        className="p-4 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg focus:outline-none transition-all duration-300"
+        className={`p-4 pl-4 pr-0.5 rounded-xl bg-black ${isOpen ? "w-56" : "w-16"} h-14 hover:bg-[#161616] hover:scale-110 hover:shadow-lg focus:outline-none transition-all duration-300`}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <Menu className="hover:rotate-180 transition-all duration-300" size={28} />
-        <div className="flex items-center fixed pl-12 top-8 text-white">
+        <div className="flex items-center pl-12  text-white">
+        <Menu className="hover:rotate-180 transition-all w-6 h-6 fixed left-5 duration-300" size={22} />
+        
               {/* Show text only when expanded */}
-              {isOpen && <span className="fixed">Menu</span>}
+              {isOpen && <p className="fixed">Menu</p>}
             </div>
       </button>
-
+      
       {/* Menu Items */}
-      <nav className="flex flex-col  gap-2 mt-4 flex-1">
+      {isOpen && (<nav className="flex flex-col  gap-2 mt-4 flex-1">
         {menuItems.map((item, idx) => (
           <div key={idx} className="relative">
           <Link
@@ -88,10 +133,10 @@ const Sidebar = () => {
           </div>
         ))}
         
-      </nav>
+      </nav>)}
 
       {/* Bottom Section (Theme + Login/Logout) */}
-      <div className="flex flex-col gap-2 mb-4">
+      {isOpen && (<div className="flex flex-col gap-2 mb-4">
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
@@ -129,12 +174,18 @@ const Sidebar = () => {
         </Link>
         
       </div>
+      )}
       {!isOpen && (
             <span className="absolute bottom-3.5 left-14 bg-black text-white text-xs px-2 py-1 rounded opacity-0 peer-hover:opacity-60 transition">
               {isLoggedIn ? "Logout" : "Login"}
             </span>
           )}
     </div>
+
+    <div aria-hidden className={`${isOpen ? "w-56" : "w-16"} shrink-0`}></div>
+    </div>
+    </> 
+      )}
     </>
   );
 };
