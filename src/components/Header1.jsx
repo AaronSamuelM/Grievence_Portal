@@ -1,11 +1,10 @@
 import { useState } from "react";
 
 const Header1 = () => {
-    const [isOpen, setIsOpen] = useState(false);
     return (
-        <div className="w-screen flex-1 flex flex-col fixed pl-16">
+        <div className="w-screen">
         {/* Header */}
-        <header className="bg-[#22406d] text-white p-2 pl-5 shadow-md">
+        <header className="bg-[#22406d] shrink-0 w-screen text-white p-2 pl-12 shadow-md">
           <p className="text-5xl font-bold  text-[#E5E7EB]">
             Government of Jharkhand <br></br>
           </p>

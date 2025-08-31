@@ -1,6 +1,6 @@
 const Home = () => {
   return (
-    <div className="flex h-screen ">
+    <div >
       {/* Sidebar */}
       
 
@@ -10,7 +10,7 @@ const Home = () => {
         
 
         {/* Content Area */}
-        <main className="flex flex-1 p-6 bg-[#ddd]">
+        <main className="flex  h-screen p-6 bg-[#ddd]">
           {/* About Section */}
           <div className="flex-1 bg-[#ccc]  p-6 rounded-lg shadow">
             <h2 className="text-black text-4xl font-semibold ">About</h2>
@@ -23,7 +23,7 @@ const Home = () => {
           </div>
 
           {/* Useful Links */}
-          <div className="w-64  ml-6 bg-[#ccc] p-6 rounded-lg shadow">
+          <div className="w-64  ml-6  bg-[#ccc] p-6 rounded-lg shadow">
             <h2 className="text-lg text-black font-semibold mb-4">Useful Links</h2>
             <ul className="list-disc list-inside text-black space-y-2">
                 <li >
