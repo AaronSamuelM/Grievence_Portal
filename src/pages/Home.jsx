@@ -10,7 +10,7 @@ const Home = () => {
         
 
         {/* Content Area */}
-        <main className="flex  h-screen p-6 bg-[#ddd]">
+        <main className="flex  overflow-y-clip px-10 pt-6 bg-[#ddd]">
           {/* About Section */}
           <div className="flex-1 bg-[#ccc]  p-6 rounded-lg shadow">
             <h2 className="text-black text-4xl font-semibold ">About</h2>

@@ -15,15 +15,15 @@ const Login = () => {
 
       {/* Main Content */}
       <div className="w-screen  fixed">
-        <button onClick={() => navigate(-1)} className="absolute cursor-pointer flex text-3xl pt-9 pb-8 pr-3 pl-4 rounded-r-4xl font-normal bg-black text-[#E5E7EB] ">
-            <Undo2 size={30} />
+        <button onClick={() => navigate(-1)} className="absolute cursor-pointer flex text-3xl mt-1.5 pt-5 pb-5 pr-3 pl-4 rounded-r-4xl font-normal bg-black text-[#E5E7EB] ">
+            <Undo2 size={22} />
           </button>
         {/* Header */}
         <header className="bg-[#22406d] text-white p-2 pl-21 shadow-md">
-          <p className="text-5xl font-bold  text-[#E5E7EB]">
+          <p className="text-2xl font-bold  text-[#E5E7EB]">
             Government of Jharkhand <br></br>
           </p>
-          <p className="text-3xl font-normal text-[#E5E7EB]">
+          <p className="text-xl font-normal text-[#E5E7EB]">
             Grievance Portal
           </p>
           
