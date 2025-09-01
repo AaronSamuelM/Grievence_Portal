@@ -39,7 +39,11 @@ const Sidebar = () => {
 
   const menuItems = [
     { name: "Home", icon: <Home size={22} />, path: "/" },
-    { name: "Raise Grievance", icon: <FileText size={22} />, path: "/grievance" },
+    {
+      name: "Raise Grievance",
+      icon: <FileText size={22} />,
+      path: "/grievance",
+    },
     { name: "Track Complaint", icon: <Search size={22} />, path: "/track" },
     { name: "About", icon: <Info size={22} />, path: "/about" },
     { name: "Change Language", icon: <Globe size={22} />, path: "/language" },
@@ -49,12 +53,11 @@ const Sidebar = () => {
 
   return (
     <>
-    
       {/* Horizontal Mode */}
       {isHorizontal ? (
         <div
-          className={`w-full h-15 flex top-24 flex-row justify-center gap-6 py-3 shadow-md
-          ${darkMode ? "bg-[#1E293B] text-white" : "bg-[#2B4C7E] text-white"}`}
+          className={`w-full h-10 flex flex-row justify-end z-50 gap-6 py-1 shadow-md
+          ${darkMode ? "bg-[#1E293B] text-white" : "bg-[#000000] text-white"}`}
         >
           {menuItems.map((item, idx) => (
             <Link
@@ -69,122 +72,134 @@ const Sidebar = () => {
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="px-3 py-1 rounded-md bg-black hover:bg-[#161616] transition"
+            className="pr-1 py-1 rounded-md bg-black hover:bg-[#161616] transition"
           >
             {darkMode ? "Light Mode" : "Dark Mode"}
           </button>
 
           {/* Login/Logout */}
-          <button
-            onClick={() => setIsLoggedIn(!isLoggedIn)}
-            className="px-3 py-1 rounded-md bg-black hover:bg-[#161616] transition"
-          >
-            {isLoggedIn ? "Logout" : "Login"}
-          </button>
-        </div>
-      ) : (<>
-      <div className="w-screen sticky h-14 bg-[#2B4C7E]">
-      
-    
-        <div
-      className={`absolute flex flex-col transition-all duration-300 rounded-xl ${
-        darkMode ? "bg-[#1E293B] text-white" : "bg-[#2B4C7E] text-white shadow-[5px_0px_14px_0px_rgba(0,_0,_0,_0.1)]"
-      } ${isOpen ? "w-56 h-99%" : "w-16"}`}
-    >
-      {/* Toggle Button */}
-      <button
-        className={`p-4 pl-4 pr-0.5 rounded-xl bg-black ${isOpen ? "w-56" : "w-16"} h-14 hover:bg-[#161616] hover:scale-110 hover:shadow-lg focus:outline-none transition-all duration-300`}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <div className="flex items-center pl-12  text-white">
-        <Menu className="hover:rotate-180 transition-all w-6 h-6 fixed left-5 duration-300" size={22} />
-        
-              {/* Show text only when expanded */}
-              {isOpen && <p className="fixed">Menu</p>}
-            </div>
-      </button>
-      
-      {/* Menu Items */}
-      {isOpen && (<nav className="flex flex-col  gap-2 mt-4 flex-1">
-        {menuItems.map((item, idx) => (
-          <div key={idx} className="relative">
-          <Link
-            key={idx}
-            to={item.path}
-            className="flex items-center gap-3 px-3 py-2 hover:bg-[#3C5C90] hover:scale-110 hover:shadow-lg rounded-md relative peer transition-all duration-300"
-          >
-            {/* White circle for icons */}
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#3e6299] text-[#DAA520]">
-              {item.icon}
-            </div>
-            <div className="text-white fixed pl-12 ">
-              {/* Show text only when expanded */}
-              {<span className={`transition-opacity duration-100 ease-in ${isOpen ? "opacity-100" : "opacity-0"}`} >{item.name}</span>}
-            </div>
-
-            {/* Tooltip on hover if collapsed */}
-            
-          </Link>
-          {!isOpen && (
-              <span className="absolute bottom-3.5 left-14 bg-black text-white text-xs px-2 py-1 rounded opacity-0 peer-hover:opacity-60 transition">
-                {item.name}
-              </span>
-            )}
-          </div>
-        ))}
-        
-      </nav>)}
-
-      {/* Bottom Section (Theme + Login/Logout) */}
-      {isOpen && (<div className="flex flex-col gap-2 mb-4">
-        {/* Theme Toggle */}
-        <button
-          onClick={toggleTheme}
-          className="flex items-center gap-3 px-3 py-2 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg rounded-md relative peer transition-all duration-300"
-        >
-          <div className="flex items-center justify-center w-8 h-8 rounded-full  text-white ">
-            {darkMode ? <Sun size={25} /> : <Moon size={25} />}
-          </div>
-          <div className="text-white  fixed pl-10 ">
-            {isOpen && <span>{darkMode ? "Light Mode" : "Dark Mode"}</span>}
-          </div>
-        </button>
-        {!isOpen && (
-            <span className="absolute bottom-3.5 left-14 bg-black text-white text-xs px-2 py-1 rounded opacity-0 peer-hover:opacity-60 transition">
-              {darkMode ? "Light Mode" : "Dark Mode"}
-            </span>
-          )}
-
-        <Link 
-        to={"/login"}
-        className="flex items-center gap-3 px-3 py-2 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg rounded-md relative peer transition-all duration-300"
-        >
-        <button
-          onClick={() => setIsLoggedIn(!isLoggedIn) }
-          
-        >
-          <div className="flex items-center justify-center  w-8 h-8 rounded-full text-white">
-            {isLoggedIn ? <LogOut size={25} /> : <LogIn size={25} />}
-          </div>
-          <div className="text-white bottom-3.5 absolute pl-10">
-            {isOpen && <span>{isLoggedIn ? "Logout" : "Login"}</span>}
-          </div>
-          
-        </button>
-        </Link>
-        
-      </div>
-      )}
-      {!isOpen && (
-            <span className="absolute bottom-3.5 left-14 bg-black text-white text-xs px-2 py-1 rounded opacity-0 peer-hover:opacity-60 transition">
+          <Link to={"/login"}>
+            <button
+              onClick={() => setIsLoggedIn(!isLoggedIn)}
+              className="pr-3 py-1 rounded-md bg-black hover:bg-[#161616] transition"
+            >
               {isLoggedIn ? "Logout" : "Login"}
-            </span>
-          )}
-    </div>
+            </button>
+          </Link>
+        </div>
+      ) : (
+        <>
+          <div className="w-full flex flex-col h-10 bg-[#000000]">
+            <div
+              className={`sticky flex flex-col transition-all duration-300 rounded-xl ${
+                darkMode
+                  ? "bg-[#1E293B] text-white"
+                  : "bg-[#000000] text-white shadow-[5px_0px_14px_0px_rgba(0,_0,_0,_0.1)]"
+              } ${isOpen ? "w-48 h-screen" : "w-16"}`}
+            >
+              {/* Toggle Button */}
+              <button
+                className={`p-2 pl-4 pr-0.5 rounded-xl bg-black ${
+                  isOpen ? "w-44" : "w-16"
+                } hover:bg-[#161616] hover:scale-110 hover:shadow-lg focus:outline-none transition-all duration-300`}
+                onClick={() => setIsOpen(!isOpen)}
+              >
+                <div className="flex items-center   text-white">
+                  <Menu
+                    className="hover:rotate-180 transition-all w-6 h-6 relative left-1 duration-300"
+                    size={22}
+                  />
 
-    <div aria-hidden className={`${isOpen ? "w-56" : "w-16"} shrink-0`}></div>
-    </div>
-    </> 
+                  {/* Show text only when expanded */}
+                  {isOpen && <p className="relative left-4">Menu</p>}
+                </div>
+              </button>
+              {/* Menu Items */}
+              {isOpen && (
+                <nav className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide">
+                  {menuItems.map((item, idx) => (
+                    <div key={idx} className=" relative">
+                      <Link
+                        key={idx}
+                        to={item.path}
+                        className="flex items-center gap-2 px-2 py-2 hover:bg-[#1b1b1b] hover:scale-110 hover:shadow-lg rounded-md relative peer transition-all duration-300"
+                      >
+                        {/* White circle for icons */}
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1d1d1d] text-[#228B22]">
+                          {item.icon}
+                        </div>
+                        <div className="text-white flex-1 min-w-0">
+                          {/* Show text only when expanded */}
+                          {
+                            <span
+                              className={`transition-opacity duration-100 ease-in ${
+                                isOpen ? "opacity-100" : "opacity-0"
+                              }`}
+                            >
+                              {item.name}
+                            </span>
+                          }
+                        </div>
+
+                        {/* Tooltip on hover if collapsed */}
+                      </Link>
+                      {!isOpen && (
+                        <span className="absolute bottom-3.5 left-14 bg-black text-white text-xs px-2 py-1 rounded opacity-0 peer-hover:opacity-60 transition">
+                          {item.name}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </nav>
+              )}
+
+              {/* Bottom Section (Theme + Login/Logout) */}
+              {isOpen && (
+                <div className="flex flex-col">
+                  {/* Theme Toggle */}
+                  <button
+                    onClick={toggleTheme}
+                    className="flex items-center gap-3 px-3 py-2 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg rounded-md relative peer transition-all duration-300"
+                  >
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full  text-white ">
+                      {darkMode ? <Sun size={25} /> : <Moon size={25} />}
+                    </div>
+                    <div className="text-white ">
+                      {isOpen && (
+                        <span>{darkMode ? "Light Mode" : "Dark Mode"}</span>
+                      )}
+                    </div>
+                  </button>
+
+                  <Link
+                    to={"/login"}
+                    className="flex items-center gap-3 px-3 py-2 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg rounded-md relative peer transition-all duration-300"
+                  >
+                    <button onClick={() => setIsLoggedIn(!isLoggedIn)}>
+                      <div className="flex items-center justify-center  w-8 h-8 rounded-full text-white">
+                        {isLoggedIn ? (
+                          <LogOut size={25} />
+                        ) : (
+                          <LogIn size={25} />
+                        )}
+                      </div>
+                      <div className="text-white bottom-3.5 absolute pl-10">
+                        {isOpen && (
+                          <span>{isLoggedIn ? "Logout" : "Login"}</span>
+                        )}
+                      </div>
+                    </button>
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            <div
+              aria-hidden
+              className={`${isOpen ? "w-56" : "w-16"} shrink-0`}
+            ></div>
+          </div>
+        </>
       )}
     </>
   );

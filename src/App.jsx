@@ -21,18 +21,18 @@ function App() {
   const isLoginPage = location.pathname === "/login";
 
   return (
-    <div className="flex  flex-col h-screen">
-      {!isLoginPage && <Header1 />}
-
-      {/* Sidebar decides itself if horizontal or vertical */}
+    <div className="flex  flex-col min-h-screen max-h-screen  overflow-y-auto overflow-x-hidden scrollbar-hide">
+      <div className="h-4 bg-white"></div>
       {!isLoginPage && <Sidebar />}
+
+      {!isLoginPage && <Header1 />}
 
       {/* Main Content */}
       <main
-        className={`flex-1 overflow-y-auto ${
+        className={`flex-1 overflow-y-auto overflow-x-hidden no-scrollbar"${
           isLoginPage
             ? "w-full h-full"
-            : "bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100"
+            : "bg-gray-50 dark:bg-[#dfdfdf] text-gray-800 dark:text-gray-100"
         }`}
       >
         <Routes>
