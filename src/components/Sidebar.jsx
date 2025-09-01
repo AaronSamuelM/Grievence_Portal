@@ -89,19 +89,19 @@ const Sidebar = () => {
         </div>
       ) : (
         <>
-          <div className="w-screen sticky h-10 bg-[#000000]">
+          <div className="w-full flex flex-col h-10 bg-[#000000]">
             <div
-              className={`absolute flex flex-col transition-all duration-300 rounded-xl ${
+              className={`sticky flex flex-col transition-all duration-300 rounded-xl ${
                 darkMode
                   ? "bg-[#1E293B] text-white"
                   : "bg-[#000000] text-white shadow-[5px_0px_14px_0px_rgba(0,_0,_0,_0.1)]"
-              } ${isOpen ? "w-56 min-h-screen" : "w-16"}`}
+              } ${isOpen ? "w-48 h-screen" : "w-16"}`}
             >
               {/* Toggle Button */}
               <button
                 className={`p-2 pl-4 pr-0.5 rounded-xl bg-black ${
-                  isOpen ? "w-56" : "w-16"
-                } h-10 hover:bg-[#161616] hover:scale-110 hover:shadow-lg focus:outline-none transition-all duration-300`}
+                  isOpen ? "w-44" : "w-16"
+                } hover:bg-[#161616] hover:scale-110 hover:shadow-lg focus:outline-none transition-all duration-300`}
                 onClick={() => setIsOpen(!isOpen)}
               >
                 <div className="flex items-center   text-white">
@@ -114,22 +114,21 @@ const Sidebar = () => {
                   {isOpen && <p className="relative left-4">Menu</p>}
                 </div>
               </button>
-
               {/* Menu Items */}
               {isOpen && (
-                <nav className="flex h-screen flex-col  gap-2 mt-4 flex-1">
+                <nav className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide">
                   {menuItems.map((item, idx) => (
                     <div key={idx} className=" relative">
                       <Link
                         key={idx}
                         to={item.path}
-                        className="flex items-center gap-3 px-3 py-2 hover:bg-[#1b1b1b] hover:scale-110 hover:shadow-lg rounded-md relative peer transition-all duration-300"
+                        className="flex items-center gap-2 px-2 py-2 hover:bg-[#1b1b1b] hover:scale-110 hover:shadow-lg rounded-md relative peer transition-all duration-300"
                       >
                         {/* White circle for icons */}
-                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#1d1d1d] text-[#228B22]">
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-[#1d1d1d] text-[#228B22]">
                           {item.icon}
                         </div>
-                        <div className="text-white relative  ">
+                        <div className="text-white flex-1 min-w-0">
                           {/* Show text only when expanded */}
                           {
                             <span
@@ -156,7 +155,7 @@ const Sidebar = () => {
 
               {/* Bottom Section (Theme + Login/Logout) */}
               {isOpen && (
-                <div className="flex flex-col gap-2 mb-4">
+                <div className="flex flex-col">
                   {/* Theme Toggle */}
                   <button
                     onClick={toggleTheme}
@@ -165,7 +164,7 @@ const Sidebar = () => {
                     <div className="flex items-center justify-center w-8 h-8 rounded-full  text-white ">
                       {darkMode ? <Sun size={25} /> : <Moon size={25} />}
                     </div>
-                    <div className="text-white bottom-3.5 absolute pl-10 ">
+                    <div className="text-white ">
                       {isOpen && (
                         <span>{darkMode ? "Light Mode" : "Dark Mode"}</span>
                       )}

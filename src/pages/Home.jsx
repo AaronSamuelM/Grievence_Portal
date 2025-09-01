@@ -5,16 +5,16 @@ const Home = () => {
       
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 ">
         {/* Header */}
         
 
         {/* Content Area */}
-        <main className="flex  overflow-y-clip px-10 pt-6 bg-[#ddd]">
+        <main className="flex flex-col items-center gap-6 md:flex-row lg:flex-row overflow-y-clip px-10 pt-6 bg-[#ddd]">
           {/* About Section */}
           <div className="flex-1 bg-[#ccc]  p-6 rounded-lg shadow">
-            <h2 className="text-black text-4xl font-semibold ">About</h2>
-            <p className="text-gray-700 text-2xl">
+            <h2 className="text-black text-2xl font-semibold ">About</h2>
+            <p className="text-gray-700 text-lg">
               The Grievance Portal is designed to streamline the process of
               raising, tracking, and resolving complaints for the citizens of
               Jharkhand. This platform ensures transparency, accountability, and
@@ -23,7 +23,7 @@ const Home = () => {
           </div>
 
           {/* Useful Links */}
-          <div className="w-64  ml-6  bg-[#ccc] p-6 rounded-lg shadow">
+          <div className="w-64 overflow-y-clip  bg-[#ccc] p-6 rounded-lg shadow">
             <h2 className="text-lg text-black font-semibold mb-4">Useful Links</h2>
             <ul className="list-disc list-inside text-black space-y-2">
                 <li >
