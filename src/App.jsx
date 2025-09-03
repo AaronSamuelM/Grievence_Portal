@@ -1,18 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+// src/App.jsx
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { useState } from "react";
-import {
-  Menu,
-  Home as HomeIcon,
-  FileText,
-  Search,
-  Info,
-  Globe,
-  Phone,
-  Settings as SettingsIcon,
-  LogIn,
-  LogOut,
-} from "lucide-react";
+
 import Sidebar from "./components/Sidebar";
+import Header1 from "./components/Header1.jsx";
 // Pages
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -24,50 +15,38 @@ import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 
 function App() {
-  const [darkMode, setDarkMode] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-
-  const menuItems = [
-    { path: "/", name: "Home", icon: <HomeIcon size={20} /> },
-    {
-      path: "/grievance",
-      name: "Raise Grievance",
-      icon: <FileText size={20} />,
-    },
-    { path: "/track", name: "Track Complaint", icon: <Search size={20} /> },
-    { path: "/about", name: "About", icon: <Info size={20} /> },
-    { path: "/links", name: "Change Language", icon: <Globe size={20} /> },
-    { path: "/contact", name: "Contact Us", icon: <Phone size={20} /> },
-    { path: "/settings", name: "Settings", icon: <SettingsIcon size={20} /> },
-  ];
+  const [darkMode, _setDarkMode] = useState(false);
+  const [_loggedIn, setLoggedIn] = useState(false);
+  const location = useLocation();
+  const isLoginPage = location.pathname === "/login";
 
   return (
-    <>
-      <div className="flex h-screen">
-        <Sidebar />
-        <div className={darkMode ? "dark" : ""}>
-          <div className="min-h-screen flex">
-            {/* Main Content */}
-            <main className="flex-1 pl-16 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 w-screen">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/grievance" element={<Grievance />} />
-                <Route path="/track" element={<Track />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/links" element={<Links />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route
-                  path="/login"
-                  element={<Login setLoggedIn={setLoggedIn} />}
-                />
-              </Routes>
-            </main>
-          </div>
-        </div>
-      </div>
-    </>
+    <div className="flex  flex-col min-h-screen max-h-screen  overflow-y-auto overflow-x-hidden scrollbar-hide">
+      <div className="h-4 bg-white"></div>
+      {!isLoginPage && <Sidebar />}
+
+      {!isLoginPage && <Header1 />}
+
+      {/* Main Content */}
+      <main
+        className={`flex-1 overflow-y-auto overflow-x-hidden no-scrollbar"${
+          isLoginPage
+            ? "w-full h-full"
+            : "bg-gray-50 dark:bg-[#dfdfdf] text-gray-800 dark:text-gray-100"
+        }`}
+      >
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/grievance" element={<Grievance />} />
+          <Route path="/track" element={<Track />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/links" element={<Links />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/login" element={<Login setLoggedIn={setLoggedIn} />} />
+        </Routes>
+      </main>
+    </div>
   );
 }
 
