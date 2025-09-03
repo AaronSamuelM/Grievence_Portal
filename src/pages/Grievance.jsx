@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import LocationPicker from "../components/LocationPicker"; // 👈 Import location picker
 
 function Grievance() {
   const [selectedProblems, setSelectedProblems] = useState([]);
@@ -7,6 +8,16 @@ function Grievance() {
   const [verified, setVerified] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [cooldown, setCooldown] = useState(0); // seconds left for resend
+  const [formData, setFormData] = useState({
+    name: "",
+    mobile: "",
+    grievance: "",
+    department: "",
+    latitude: null,
+    longitude: null,
+    address: "",
+  });
+
   const dropdownRef = useRef(null);
 
   const departments = [
@@ -52,6 +63,7 @@ function Grievance() {
         ? prev.filter((item) => item !== problem)
         : [...prev, problem]
     );
+    setFormData((prev) => ({ ...prev, department: problem }));
   };
 
   // OTP request function with cooldown
@@ -82,6 +94,16 @@ function Grievance() {
     // 3. If valid, mark user as authenticated
   };
 
+  // Location select handler
+  const handleLocationSelect = ({ lat, lng, address }) => {
+    setFormData((prev) => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng,
+      address,
+    }));
+  };
+
   // Close dropdown if click happens outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -93,34 +115,55 @@ function Grievance() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Handle Submit
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Final Payload:", formData);
+
+    // TODO: Send to backend API
+    // fetch("/api/grievance", { method:"POST", body: JSON.stringify(formData) })
+  };
+
   return (
-    <div className="flex flex-col  items-center gap-6 md:flex-row md:items-start lg:items-start lg:flex-row overflow-y-clip px-10 pt-6 bg-[#ddd]">
+    <div className="flex flex-col items-center gap-6 md:flex-row md:items-start lg:items-start lg:flex-row overflow-y-clip px-10 pt-6 bg-[#ddd]">
       <div className="flex-1 bg-[#ccc] p-6 rounded-lg">
         <h1 className="text-xl text-black font-bold mb-3">Raise a Grievance</h1>
 
-        <form className="space-y-3 text-black">
+        <form onSubmit={handleSubmit} className="space-y-3 text-black">
+          {/* Name */}
           <input
             type="text"
             placeholder="Your Name"
+            value={formData.name}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, name: e.target.value }))
+            }
             className="w-full p-2 border rounded"
           />
-          {!verified &&
-          <div className="flex flex-row gap-2">
-            <input
-              type="tel"
-              placeholder="Mobile Number"
-              className="w-full p-2 border rounded"
-            />
-            
-            <button
-              type="button"
-              onClick={requestOtp}
-              disabled={cooldown > 0}
-              className="shadow-lg rounded-lg hover:scale-105"
-            >
-              {cooldown > 0 ? `Resend in ${cooldown}s` : "Send OTP"}
-            </button> 
-          </div>}
+
+          {/* Mobile + OTP */}
+          {!verified && (
+            <div className="flex flex-row gap-2">
+              <input
+                type="tel"
+                placeholder="Mobile Number"
+                value={formData.mobile}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, mobile: e.target.value }))
+                }
+                className="w-full p-2 border rounded"
+              />
+
+              <button
+                type="button"
+                onClick={requestOtp}
+                disabled={cooldown > 0}
+                className="shadow-lg rounded-lg hover:scale-105"
+              >
+                {cooldown > 0 ? `Resend in ${cooldown}s` : "Send OTP"}
+              </button>
+            </div>
+          )}
 
           {verify && (
             <div className="flex flex-row gap-2">
@@ -129,20 +172,22 @@ function Grievance() {
                 placeholder="Enter OTP"
                 className="w-full p-2 border rounded"
               />
-              {!verified &&
-              <button
-                type="button"
-                onClick={handleOtpSubmit}
-                className="shadow-lg rounded-lg hover:scale-105"
-              >
-                Submit OTP
-              </button>}
+              {!verified && (
+                <button
+                  type="button"
+                  onClick={handleOtpSubmit}
+                  className="shadow-lg rounded-lg hover:scale-105"
+                >
+                  Submit OTP
+                </button>
+              )}
             </div>
           )}
 
+          {/* Show grievance form after verified */}
           {verified && (
             <div>
-              {/* Problem type dropdown */}
+              {/* Department Dropdown */}
               <div className="relative" ref={dropdownRef}>
                 <button
                   type="button"
@@ -177,10 +222,31 @@ function Grievance() {
                 </div>
               </div>
 
+              {/* Grievance */}
               <textarea
                 placeholder="Write your grievance here..."
+                value={formData.grievance}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    grievance: e.target.value,
+                  }))
+                }
                 className="w-full p-2 border rounded mt-3"
               ></textarea>
+
+              {/* Location Picker */}
+              <div className="mt-4">
+                <LocationPicker onLocationSelect={handleLocationSelect} />
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                className="mt-4 w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Submit Grievance
+              </button>
             </div>
           )}
         </form>

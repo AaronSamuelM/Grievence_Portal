@@ -16,14 +16,14 @@ import Login from "./pages/Login";
 
 function App() {
   const [_darkMode, _setDarkMode] = useState(false);
-  const [_loggedIn, setLoggedIn] = useState(false);
+  const [LoggedIn, setLoggedIn] = useState(false);
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
 
   return (
     <div className="flex  flex-col min-h-screen max-h-screen  overflow-y-auto overflow-x-hidden scrollbar-hide">
       <div className="h-4 bg-white"></div>
-      {!isLoginPage && <Sidebar />}
+      {!isLoginPage && <Sidebar LoggedIn={LoggedIn} setLoggedIn={setLoggedIn}/>}
 
       {!isLoginPage && <Header1 />}
 

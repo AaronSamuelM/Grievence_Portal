@@ -1,6 +1,7 @@
 // src/components/Sidebar.jsx
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Home,
   FileText,
@@ -16,12 +17,11 @@ import {
   Moon,
 } from "lucide-react";
 
-const Sidebar = () => {
+const Sidebar = ({ LoggedIn, setLoggedIn }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isHorizontal, setIsHorizontal] = useState(false);
-
+  const navigate = useNavigate();
   // Auto detect screen size
   useEffect(() => {
     const handleResize = () => {
@@ -50,6 +50,15 @@ const Sidebar = () => {
     { name: "Contact Us", icon: <Phone size={22} />, path: "/contact" },
     { name: "Settings", icon: <Settings size={22} />, path: "/settings" },
   ];
+  const handleAuth = () => {
+    if (LoggedIn) {
+      // Future: clear tokens, call API, etc.
+      setLoggedIn(false);
+      navigate("/"); // ✅ stay on home (or any safe page)
+    } else {
+      navigate("/login"); // ✅ go to login page
+    }
+  };
 
   return (
     <>
@@ -78,14 +87,12 @@ const Sidebar = () => {
           </button>
 
           {/* Login/Logout */}
-          <Link to={"/login"}>
-            <button
-              onClick={() => setIsLoggedIn(!isLoggedIn)}
-              className="pr-3 py-1 rounded-md bg-black hover:bg-[#161616] transition"
-            >
-              {isLoggedIn ? "Logout" : "Login"}
-            </button>
-          </Link>
+          <button
+            onClick={handleAuth}
+            className="pr-3 rounded-md bg-black hover:bg-[#161616] transition"
+          >
+            {LoggedIn ? "Logout" : "Login"}
+          </button>
         </div>
       ) : (
         <>
@@ -159,7 +166,7 @@ const Sidebar = () => {
                   {/* Theme Toggle */}
                   <button
                     onClick={toggleTheme}
-                    className="flex items-center gap-3 px-3 py-2 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg rounded-md relative peer transition-all duration-300"
+                    className="flex items-center gap-3 px-1 py-2 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg rounded-md relative peer transition-all duration-300"
                   >
                     <div className="flex items-center justify-center w-8 h-8 rounded-full  text-white ">
                       {darkMode ? <Sun size={25} /> : <Moon size={25} />}
@@ -171,25 +178,15 @@ const Sidebar = () => {
                     </div>
                   </button>
 
-                  <Link
-                    to={"/login"}
-                    className="flex items-center gap-3 px-3 py-2 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg rounded-md relative peer transition-all duration-300"
+                  <button
+                    onClick={handleAuth}
+                    className="flex items-center gap-3 px-1 pb-2 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg rounded-md transition-all duration-300"
                   >
-                    <button onClick={() => setIsLoggedIn(!isLoggedIn)}>
-                      <div className="flex items-center justify-center  w-8 h-8 rounded-full text-white">
-                        {isLoggedIn ? (
-                          <LogOut size={25} />
-                        ) : (
-                          <LogIn size={25} />
-                        )}
-                      </div>
-                      <div className="text-white bottom-3.5 absolute pl-10">
-                        {isOpen && (
-                          <span>{isLoggedIn ? "Logout" : "Login"}</span>
-                        )}
-                      </div>
-                    </button>
-                  </Link>
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full text-white">
+                      {LoggedIn ? <LogOut size={25} /> : <LogIn size={25} />}
+                    </div>
+                    {isOpen && <span>{LoggedIn ? "Logout" : "Login"}</span>}
+                  </button>
                 </div>
               )}
             </div>
