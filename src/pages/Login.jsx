@@ -3,18 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { Undo2 } from "lucide-react";
 import Header1 from "../components/Header1.jsx";
 
-const Login = () => {
+const Login = ({ setLoggedIn }) => {
   const navigate = useNavigate();
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoggedIn(true);
+    navigate("/");
   };
   return (
     <div className="flex flex-col ">
       {/* Sidebar */}
       <button
         onClick={() => navigate(-1)}
-        className="cursor-pointer flex text-3xl mt-1 pt-3 pb-3 pr-3 pl-4  font-normal bg-black text-[#E5E7EB] "
+        className="cursor-pointer fle text-3xl mt-1 pt-3 pb-3 pr-3 pl-4  font-normal bg-black text-[#E5E7EB] "
       >
         <Undo2 size={22} />
       </button>
@@ -22,7 +23,7 @@ const Login = () => {
       {/* Main Content */}
       <Header1 />
       {/* Content Area */}
-      <main className="flex w-screenflex-1 items-center pt-24 justify-center bg-[#ddd]">
+      <main className="flex w-screen pt-14 items-center justify-center">
         {/* Login Card */}
         <div className="w-full max-w-md bg-[#ccc] p-8 border-2 border-[#3d3d3dab] rounded-[20px] shadow-2xl">
           <h2 className="text-3xl font-semibold text-black mb-6 text-center">
