@@ -15,7 +15,7 @@ import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 
 function App() {
-  const [darkMode, _setDarkMode] = useState(false);
+  const [_darkMode, _setDarkMode] = useState(false);
   const [_loggedIn, setLoggedIn] = useState(false);
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
