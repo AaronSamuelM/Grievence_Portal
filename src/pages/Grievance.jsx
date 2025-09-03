@@ -61,7 +61,7 @@ function Grievance() {
     setOtpSent(true);
     setCooldown(60); // 60s cooldown
 
-    // TODO: 🔑 Call backend API to send OTP and return JWT for validation later
+    // TODO: Call backend API to send OTP and return JWT for validation later
 
     const timer = setInterval(() => {
       setCooldown((prev) => {
@@ -94,7 +94,7 @@ function Grievance() {
   }, []);
 
   return (
-    <div className="flex flex-col items-start gap-6 md:flex-row lg:flex-row overflow-y-clip px-10 pt-6 bg-[#ddd]">
+    <div className="flex flex-col  items-center gap-6 md:flex-row md:items-start lg:items-start lg:flex-row overflow-y-clip px-10 pt-6 bg-[#ddd]">
       <div className="flex-1 bg-[#ccc] p-6 rounded-lg">
         <h1 className="text-xl text-black font-bold mb-3">Raise a Grievance</h1>
 
