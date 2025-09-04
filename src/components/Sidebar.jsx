@@ -46,17 +46,15 @@ const Sidebar = ({ LoggedIn, setLoggedIn }) => {
     },
     { name: "Track Complaint", icon: <Search size={22} />, path: "/track" },
     { name: "About", icon: <Info size={22} />, path: "/about" },
-    { name: "Change Language", icon: <Globe size={22} />, path: "/language" },
     { name: "Contact Us", icon: <Phone size={22} />, path: "/contact" },
-    { name: "Settings", icon: <Settings size={22} />, path: "/settings" },
   ];
   const handleAuth = () => {
     if (LoggedIn) {
       // Future: clear tokens, call API, etc.
       setLoggedIn(false);
-      navigate("/"); // ✅ stay on home (or any safe page)
+      navigate("/"); // stay on home (or any safe page)
     } else {
-      navigate("/login"); // ✅ go to login page
+      navigate("/login"); // go to login page
     }
   };
 

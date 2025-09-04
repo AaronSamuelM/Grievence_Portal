@@ -1,13 +1,44 @@
-import { useState, useRef, useEffect } from "react";
-import LocationPicker from "../components/LocationPicker"; // 👈 Import location picker
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import LocationPicker from "../components/LocationPicker";
+import { X } from "lucide-react";
+
+// Custom hook: handles warnings with auto-remove
+const useWarnings = () => {
+  const [warnings, setWarnings] = useState([]);
+  const showWarning = useCallback((msg) => {
+    const id = Date.now();
+    setWarnings((prev) => [...prev, { id, msg }]);
+    setTimeout(() => {
+      setWarnings((prev) => prev.filter((w) => w.id !== id));
+    }, 3000);
+  }, []);
+  return { warnings, showWarning };
+};
+
+// Custom hook: handles OTP cooldown
+const useCooldown = (initial = 0) => {
+  const [cooldown, setCooldown] = useState(initial);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCooldown((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
+
+  return [cooldown, setCooldown];
+};
 
 function Grievance() {
   const [selectedProblems, setSelectedProblems] = useState([]);
   const [showOptions, setShowOptions] = useState(false);
   const [verify, setVerify] = useState(false);
   const [verified, setVerified] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [cooldown, setCooldown] = useState(0); // seconds left for resend
+  const { warnings, showWarning } = useWarnings();
+  const [cooldown, setCooldown] = useCooldown(0);
+  const [files, setFiles] = useState([]);
+
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
@@ -20,94 +51,109 @@ function Grievance() {
 
   const dropdownRef = useRef(null);
 
-  const departments = [
-    "Agriculture, Animal Husbandry & Co-operative",
-    "Building Construction",
-    "Cabinet Election",
-    "Cabinet Secretariat and Vigilance",
-    "Commercial Taxes",
-    "Drinking Water and Sanitation",
-    "Energy",
-    "Excise and Prohibition",
-    "Finance",
-    "Food, Public Distribution & Consumer Affairs",
-    "Forest, Environment & Climate Change",
-    "Health, Medical Education & Family Welfare",
-    "Higher and Technical Education",
-    "Home, Jail & Disaster Management",
-    "Industries",
-    "Information & Public Relations",
-    "Information Technology & e-Governance",
-    "Labour, Employment, Training and Skill Development",
-    "Law",
-    "Mines & Geology",
-    "Panchayati Raj",
-    "Personnel, Administrative Reforms & Rajbhasha",
-    "Planning & Development",
-    "Revenue, Registration & Land Reforms",
-    "Road Construction",
-    "Rural Development",
-    "Rural Works",
-    "Scheduled Tribe, Scheduled Caste, Minority and Backward Class Welfare",
-    "School Education & Literacy",
-    "Tourism, Arts, Culture, Sports & Youth Affairs",
-    "Transport",
-    "Urban Development & Housing",
-    "Water Resources",
-    "Women, Child Development & Social Security"
-  ];
+  const departments = useMemo(
+    () => [
+      "Agriculture, Animal Husbandry & Co-operative",
+      "Building Construction",
+      "Cabinet Election",
+      "Cabinet Secretariat and Vigilance",
+      "Commercial Taxes",
+      "Drinking Water and Sanitation",
+      "Energy",
+      "Excise and Prohibition",
+      "Finance",
+      "Food, Public Distribution & Consumer Affairs",
+      "Forest, Environment & Climate Change",
+      "Health, Medical Education & Family Welfare",
+      "Higher and Technical Education",
+      "Home, Jail & Disaster Management",
+      "Industries",
+      "Information & Public Relations",
+      "Information Technology & e-Governance",
+      "Labour, Employment, Training and Skill Development",
+      "Law",
+      "Mines & Geology",
+      "Panchayati Raj",
+      "Personnel, Administrative Reforms & Rajbhasha",
+      "Planning & Development",
+      "Revenue, Registration & Land Reforms",
+      "Road Construction",
+      "Rural Development",
+      "Rural Works",
+      "Scheduled Tribe, Scheduled Caste, Minority and Backward Class Welfare",
+      "School Education & Literacy",
+      "Tourism, Arts, Culture, Sports & Youth Affairs",
+      "Transport",
+      "Urban Development & Housing",
+      "Water Resources",
+      "Women, Child Development & Social Security",
+    ],
+    []
+  );
 
-  const handleCheckboxChange = (problem) => {
+  // File handler
+  const handleChange = useCallback(
+    (e) => {
+      const selectedFiles = Array.from(e.target.files);
+      const validFiles = selectedFiles.reduce((acc, file) => {
+        if (!file.type.startsWith("image/")) {
+          showWarning("Only image files are allowed.");
+        } else if (file.size > 1024 * 1024) {
+          showWarning(`${file.name} exceeds 1MB limit.`);
+        } else if (acc.length + files.length >= 10) {
+          showWarning("Maximum 10 images allowed.");
+        } else {
+          acc.push({
+            file,
+            url: URL.createObjectURL(file),
+            name: file.name,
+          });
+        }
+        return acc;
+      }, []);
+
+      setFiles((prev) => [...prev, ...validFiles]);
+    },
+    [files, showWarning]
+  );
+
+  const removeImage = useCallback(
+    (name) => setFiles((prev) => prev.filter((f) => f.name !== name)),
+    []
+  );
+
+  // Department handler
+  const handleCheckboxChange = useCallback((problem) => {
     setSelectedProblems((prev) =>
       prev.includes(problem)
         ? prev.filter((item) => item !== problem)
         : [...prev, problem]
     );
     setFormData((prev) => ({ ...prev, department: problem }));
-  };
+  }, []);
 
-  // OTP request function with cooldown
-  const requestOtp = () => {
-    if (cooldown > 0) return; // prevent spamming
+  // OTP
+  const requestOtp = useCallback(() => {
+    if (cooldown > 0) return;
     setVerify(true);
-    setOtpSent(true);
-    setCooldown(60); // 60s cooldown
+    setCooldown(60);
+    // TODO: Backend OTP call
+  }, [cooldown, setCooldown]);
 
-    // TODO: Call backend API to send OTP and return JWT for validation later
-
-    const timer = setInterval(() => {
-      setCooldown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  // Handle OTP submit
-  const handleOtpSubmit = () => {
+  const handleOtpSubmit = useCallback(() => {
     setVerified(true);
-    // 1. Send OTP + JWT token to backend
-    // 2. Verify OTP against signed JWT server-side
-    // 3. If valid, mark user as authenticated
-  };
+    // TODO: Backend OTP verification
+  }, []);
 
-  // Location select handler
-  const handleLocationSelect = ({ lat, lng, address }) => {
-    setFormData((prev) => ({
-      ...prev,
-      latitude: lat,
-      longitude: lng,
-      address,
-    }));
-  };
+  // Location
+  const handleLocationSelect = useCallback(({ lat, lng, address }) => {
+    setFormData((prev) => ({ ...prev, latitude: lat, longitude: lng, address }));
+  }, []);
 
-  // Close dropdown if click happens outside
+  // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setShowOptions(false);
       }
     };
@@ -115,20 +161,49 @@ function Grievance() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Handle Submit
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Final Payload:", formData);
+  // Submit
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      const payload = new FormData();
+      Object.entries(formData).forEach(([key, value]) =>
+        payload.append(key, value)
+      );
+      files.forEach((f) => payload.append("images", f.file));
 
-    // TODO: Send to backend API
-    // fetch("/api/grievance", { method:"POST", body: JSON.stringify(formData) })
-  };
+      console.log("Submitting with files:");
+      for (let [key, value] of payload.entries()) {
+        console.log(
+          value instanceof File
+            ? `${key}: ${value.name} (${value.size} bytes)`
+            : `${key}: ${value}`
+        );
+      }
+
+      // TODO: send to backend
+    },
+    [formData, files]
+  );
 
   return (
     <div className="flex flex-col items-center gap-6 md:flex-row md:items-start lg:items-start lg:flex-row overflow-y-clip px-10 pt-6 bg-[#ddd]">
       <div className="flex-1 bg-[#ccc] p-6 rounded-lg">
+        {/* Warnings */}
+        <div className="fixed top-36 right-4 space-y-2 z-50">
+          {warnings.map((w) => (
+            <div
+              key={w.id}
+              className="px-4 py-2 rounded-lg shadow-lg text-white bg-[#d3cd31]
+                      transition-all duration-500 ease-in-out transform opacity-100 translate-y-0"
+            >
+              {w.msg}
+            </div>
+          ))}
+        </div>
+
         <h1 className="text-xl text-black font-bold mb-3">Raise a Grievance</h1>
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-3 text-black">
           {/* Name */}
           <input
@@ -142,18 +217,17 @@ function Grievance() {
           />
 
           {/* Mobile + OTP */}
-          {!verified && (
-            <div className="flex flex-row gap-2">
-              <input
-                type="tel"
-                placeholder="Mobile Number"
-                value={formData.mobile}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, mobile: e.target.value }))
-                }
-                className="w-full p-2 border rounded"
-              />
-
+          <div className="flex flex-row gap-2">
+            <input
+              type="tel"
+              placeholder="Mobile Number"
+              value={formData.mobile}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, mobile: e.target.value }))
+              }
+              className="w-full p-2 border rounded"
+            />
+            {!verified && (
               <button
                 type="button"
                 onClick={requestOtp}
@@ -162,36 +236,34 @@ function Grievance() {
               >
                 {cooldown > 0 ? `Resend in ${cooldown}s` : "Send OTP"}
               </button>
-            </div>
-          )}
+            )}
+          </div>
 
-          {verify && (
+          {verify && !verified && (
             <div className="flex flex-row gap-2">
               <input
                 type="tel"
                 placeholder="Enter OTP"
                 className="w-full p-2 border rounded"
               />
-              {!verified && (
-                <button
-                  type="button"
-                  onClick={handleOtpSubmit}
-                  className="shadow-lg rounded-lg hover:scale-105"
-                >
-                  Submit OTP
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={handleOtpSubmit}
+                className="shadow-lg rounded-lg hover:scale-105"
+              >
+                Submit OTP
+              </button>
             </div>
           )}
 
-          {/* Show grievance form after verified */}
+          {/* After OTP Verified */}
           {verified && (
-            <div>
+            <div className="flex flex-col gap-3">
               {/* Department Dropdown */}
               <div className="relative" ref={dropdownRef}>
                 <button
                   type="button"
-                  onClick={() => setShowOptions(!showOptions)}
+                  onClick={() => setShowOptions((prev) => !prev)}
                   className="w-full p-2 border rounded text-left"
                 >
                   {selectedProblems.length > 0
@@ -222,6 +294,50 @@ function Grievance() {
                 </div>
               </div>
 
+              {/* File Upload */}
+              <div className="flex flex-col gap-2 border rounded-lg bg-[#ccc] shadow p-3">
+                <h2 className="text-base font-semibold text-gray-700">
+                  Add Images
+                </h2>
+                <label className="cursor-pointer border border-dashed border-green-500 bg-[#c6c6c6] hover:bg-[#09ff0018]
+                            rounded-lg p-4 text-center text-gray-600 transition">
+                  <span className="block mb-2">
+                    Click to upload (max 10 , limit 1MB)
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleChange}
+                  />
+                </label>
+
+                {files.length > 0 && (
+                  <div className="grid grid-cols-5 gap-3 mt-2">
+                    {files.map((file) => (
+                      <div
+                        key={file.name}
+                        className="relative group border rounded-lg overflow-hidden shadow-sm"
+                      >
+                        <img
+                          src={file.url}
+                          alt={file.name}
+                          className="h-28 w-full object-contain "
+                        />
+                        <button
+                          onClick={() => removeImage(file.name)}
+                          className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full 
+                                    opacity-80 group-hover:opacity-100 transition"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* Grievance */}
               <textarea
                 placeholder="Write your grievance here..."
@@ -232,18 +348,16 @@ function Grievance() {
                     grievance: e.target.value,
                   }))
                 }
-                className="w-full p-2 border rounded mt-3"
+                className="w-full p-2 border rounded"
               ></textarea>
 
               {/* Location Picker */}
-              <div className="mt-4">
-                <LocationPicker onLocationSelect={handleLocationSelect} />
-              </div>
+              <LocationPicker onLocationSelect={handleLocationSelect} />
 
               {/* Submit */}
               <button
                 type="submit"
-                className="mt-4 w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="mt-4 w-full p-2 bg-black border-1 border-[#228B22] text-white py-2 rounded hover:scale-105"
               >
                 Submit Grievance
               </button>
