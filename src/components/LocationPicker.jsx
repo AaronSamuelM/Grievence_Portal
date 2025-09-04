@@ -190,7 +190,7 @@ function LocationPicker({ onLocationSelect }) {
   };
 
   return (
-    <div className="bg-[#ddd] p-3 rounded-lg border relative">
+    <div className="bg-[#ccc] p-3 rounded-lg border relative">
       {/* Warning Banner */}
       {warning && (
         <div className="absolute top-0 left-0 right-0 bg-yellow-400 text-black text-sm text-center py-1 rounded-t">
@@ -199,11 +199,11 @@ function LocationPicker({ onLocationSelect }) {
       )}
 
       <div className="flex justify-between items-center mb-2">
-        <span className="font-semibold text-black">Location</span>
+        <span className="font-semibold text-black">Grievence Location</span>
         <button
           type="button"
           onClick={toggleLocationMode}
-          className="text-sm px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className="text-sm px-2 py-1 border-1 bg-black border-[#228B22] text-white rounded hover:scale-105"
         >
           {useCurrent ? "Use Manual" : "Use Current Location"}
         </button>
@@ -261,16 +261,18 @@ function LocationPicker({ onLocationSelect }) {
           <MapClickHandler />
         </MapContainer>
       </div>
-
+      <div className="flex flex-1 justify-center">
       {!useCurrent && (
         <button
           type="button"
           onClick={confirmLocation}
-          className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
+          className="w-38  bg-black border-1 border-[#228B22] text-white py-2 rounded hover:scale-105"
         >
           Set Location
         </button>
+        
       )}
+      </div>
     </div>
   );
 }
