@@ -256,6 +256,7 @@ function Grievance() {
               </button>
             </div>
           )}
+          
           {verified && (
             
             <div className="flex flex-col gap-3">
