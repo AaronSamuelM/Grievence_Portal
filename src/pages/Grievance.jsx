@@ -42,6 +42,7 @@ function Grievance() {
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
+    title:"",
     grievance: "",
     department: "",
     latitude: null,
@@ -255,11 +256,34 @@ function Grievance() {
               </button>
             </div>
           )}
-
-          {/* After OTP Verified */}
+          
           {verified && (
+            
             <div className="flex flex-col gap-3">
               {/* Department Dropdown */}
+              <input
+                type="text"
+                placeholder="Grievence Title"
+                value={formData.grievance}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    title: e.target.value,
+                  }))
+                }
+                className="w-full p-2 border rounded"
+              ></input>
+              <textarea
+                placeholder="Description..."
+                value={formData.grievance}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    grievance: e.target.value,
+                  }))
+                }
+                className="w-full p-2 border rounded"
+              ></textarea>
               <div className="relative" ref={dropdownRef}>
                 <button
                   type="button"
@@ -339,17 +363,7 @@ function Grievance() {
               </div>
 
               {/* Grievance */}
-              <textarea
-                placeholder="Write your grievance here..."
-                value={formData.grievance}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    grievance: e.target.value,
-                  }))
-                }
-                className="w-full p-2 border rounded"
-              ></textarea>
+              
 
               {/* Location Picker */}
               <LocationPicker onLocationSelect={handleLocationSelect} />

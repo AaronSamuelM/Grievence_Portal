@@ -59,7 +59,7 @@ const Sidebar = ({ LoggedIn, setLoggedIn }) => {
   };
 
   return (
-    <>
+    <> 
       {/* Horizontal Mode */}
       {isHorizontal ? (
         <div

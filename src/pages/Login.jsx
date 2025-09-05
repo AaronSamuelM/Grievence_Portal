@@ -13,13 +13,6 @@ const Login = ({ setLoggedIn }) => {
   return (
     <div className="flex flex-col ">
       {/* Sidebar */}
-      <button
-        onClick={() => navigate(-1)}
-        className="cursor-pointer fle text-3xl mt-1 pt-3 pb-3 pr-3 pl-4  font-normal bg-black text-[#E5E7EB] "
-      >
-        <Undo2 size={22} />
-      </button>
-
       {/* Main Content */}
       <Header1 />
       {/* Content Area */}

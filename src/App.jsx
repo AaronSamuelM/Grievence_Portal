@@ -1,6 +1,8 @@
 // src/App.jsx
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Undo2 } from "lucide-react";
 
 import Sidebar from "./components/Sidebar";
 import Header1 from "./components/Header1.jsx";
@@ -18,11 +20,19 @@ function App() {
   const [_darkMode, _setDarkMode] = useState(false);
   const [LoggedIn, setLoggedIn] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const isLoginPage = location.pathname === "/login";
 
   return (
     <div className="flex  flex-col min-h-screen max-h-screen  overflow-y-auto overflow-x-hidden scrollbar-hide">
-      <div className="h-4 bg-white"></div>
+      <div className=" bg-white">
+        <button
+          onClick={() => navigate(-1)}
+          className="cursor-pointer flex text-3xl pt-1 pb-1 pr-2 rounded-r-full hover:scale-110 pl-2  font-normal bg-black text-[#E5E7EB] "
+        >
+          <Undo2 size={22} />
+        </button>
+      </div>
       {!isLoginPage && <Sidebar LoggedIn={LoggedIn} setLoggedIn={setLoggedIn}/>}
 
       {!isLoginPage && <Header1 />}
@@ -46,6 +56,9 @@ function App() {
           <Route path="/login" element={<Login setLoggedIn={setLoggedIn} />} />
         </Routes>
       </main>
+      <footer className="bg-[#22406d] text-white text-center py-4">
+        © 2025 Government of Jharkhand | Helpline: 1800-123-456
+      </footer>
     </div>
   );
 }
