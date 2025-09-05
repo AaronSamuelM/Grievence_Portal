@@ -256,8 +256,6 @@ function Grievance() {
               </button>
             </div>
           )}
-
-          {/* After OTP Verified */}
           {verified && (
             
             <div className="flex flex-col gap-3">

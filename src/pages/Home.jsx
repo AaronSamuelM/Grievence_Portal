@@ -10,8 +10,6 @@ const Home = () => {
   });
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
-
-  // Fetch stats
   useEffect(() => {
     const base = import.meta.env.VITE_API_URL || "";
     const primary = `${base}/stats`;
