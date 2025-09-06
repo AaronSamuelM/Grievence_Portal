@@ -42,7 +42,7 @@ function Grievance() {
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
-    title:"",
+    title: "",
     grievance: "",
     department: "",
     latitude: null,
@@ -148,7 +148,12 @@ function Grievance() {
 
   // Location
   const handleLocationSelect = useCallback(({ lat, lng, address }) => {
-    setFormData((prev) => ({ ...prev, latitude: lat, longitude: lng, address }));
+    setFormData((prev) => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng,
+      address,
+    }));
   }, []);
 
   // Close dropdown when clicking outside
@@ -187,229 +192,238 @@ function Grievance() {
   );
 
   return (
-    <div className="flex flex-col items-center gap-6 md:flex-row md:items-start lg:items-start lg:flex-row overflow-y-clip px-10 pt-6 bg-[#ddd]">
-      <div className="flex-1 bg-[#ccc] p-6 rounded-lg">
-        {/* Warnings */}
-        <div className="fixed top-36 right-4 space-y-2 z-50">
-          {warnings.map((w) => (
-            <div
-              key={w.id}
-              className="px-4 py-2 rounded-lg shadow-lg text-white bg-[#d3cd31]
-                      transition-all duration-500 ease-in-out transform opacity-100 translate-y-0"
-            >
-              {w.msg}
-            </div>
-          ))}
-        </div>
-
-        <h1 className="text-xl text-black font-bold mb-3">Raise a Grievance</h1>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-3 text-black">
-          {/* Name */}
-          <input
-            type="text"
-            placeholder="Your Name"
-            value={formData.name}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, name: e.target.value }))
-            }
-            className="w-full p-2 border rounded"
-          />
-
-          {/* Mobile + OTP */}
-          <div className="flex flex-row gap-2">
-            <input
-              type="tel"
-              placeholder="Mobile Number"
-              value={formData.mobile}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, mobile: e.target.value }))
-              }
-              className="w-full p-2 border rounded"
-            />
-            {!verified && (
-              <button
-                type="button"
-                onClick={requestOtp}
-                disabled={cooldown > 0}
-                className="shadow-lg rounded-lg hover:scale-105"
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 px-6 py-10">
+        {/* Main Form Section */}
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6 md:p-8 transition hover:shadow-xl">
+          {/* Warnings */}
+          <div className="fixed top-36 right-4 space-y-2 z-50">
+            {warnings.map((w) => (
+              <div
+                key={w.id}
+                className="px-4 py-2 rounded-lg shadow-lg text-white bg-yellow-500 
+                         transition-all duration-500 ease-in-out"
               >
-                {cooldown > 0 ? `Resend in ${cooldown}s` : "Send OTP"}
-              </button>
-            )}
+                {w.msg}
+              </div>
+            ))}
           </div>
 
-          {verify && !verified && (
-            <div className="flex flex-row gap-2">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6 border-b pb-3">
+            Raise a Grievance
+          </h2>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5 text-gray-700">
+            {/* Name */}
+            <input
+              type="text"
+              placeholder="Your Name"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, name: e.target.value }))
+              }
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition"
+            />
+
+            {/* Mobile + OTP */}
+            <div className="flex flex-col md:flex-row gap-3">
               <input
                 type="tel"
-                placeholder="Enter OTP"
-                className="w-full p-2 border rounded"
+                placeholder="Mobile Number"
+                value={formData.mobile}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, mobile: e.target.value }))
+                }
+                className="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition"
               />
-              <button
-                type="button"
-                onClick={handleOtpSubmit}
-                className="shadow-lg rounded-lg hover:scale-105"
-              >
-                Submit OTP
-              </button>
-            </div>
-          )}
-
-          
-          {verified && (
-            
-            <div className="flex flex-col gap-3">
-              {/* Department Dropdown */}
-              <input
-                type="text"
-                placeholder="Grievence Title"
-                value={formData.grievance}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    title: e.target.value,
-                  }))
-                }
-                className="w-full p-2 border rounded"
-              ></input>
-              <textarea
-                placeholder="Description..."
-                value={formData.grievance}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    grievance: e.target.value,
-                  }))
-                }
-                className="w-full p-2 border rounded"
-              ></textarea>
-              <div className="relative" ref={dropdownRef}>
+              {!verified && (
                 <button
                   type="button"
-                  onClick={() => setShowOptions((prev) => !prev)}
-                  className="w-full p-2 border rounded text-left"
+                  onClick={requestOtp}
+                  disabled={cooldown > 0}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 hover:scale-105 transition disabled:opacity-50"
                 >
-                  {selectedProblems.length > 0
-                    ? selectedProblems.join(", ")
-                    : "Select The corresponding Department"}
+                  {cooldown > 0 ? `Resend in ${cooldown}s` : "Send OTP"}
                 </button>
+              )}
+            </div>
 
-                <div
-                  className={`origin-top transition-all duration-300 ease-in transform ${
-                    showOptions
-                      ? "max-h-40 opacity-100 scale-y-100 relative"
-                      : "max-h-0 opacity-0 scale-y-0 absolute"
-                  } overflow-y-scroll z-10 w-full border rounded p-2 mt-1 shadow`}
+            {verify && !verified && (
+              <div className="flex flex-col md:flex-row gap-3">
+                <input
+                  type="tel"
+                  placeholder="Enter OTP"
+                  className="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition"
+                />
+                
+                <button
+                  type="button"
+                  onClick={handleOtpSubmit}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 hover:scale-105 transition"
                 >
-                  {departments.map((problem, idx) => (
-                    <label
-                      key={idx}
-                      className="flex hover:pl-1 hover:bg-[#ccd] items-center transition-all duration-300 space-x-2 mb-1"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedProblems.includes(problem)}
-                        onChange={() => handleCheckboxChange(problem)}
-                      />
-                      <span>{problem}</span>
-                    </label>
-                  ))}
-                </div>
+                  Submit OTP
+                </button>
               </div>
+            )}
 
-              {/* File Upload */}
-              <div className="flex flex-col gap-2 border rounded-lg bg-[#ccc] shadow p-3">
-                <h2 className="text-base font-semibold text-gray-700">
-                  Add Images
-                </h2>
-                <label className="cursor-pointer border border-dashed border-green-500 bg-[#c6c6c6] hover:bg-[#09ff0018]
-                            rounded-lg p-4 text-center text-gray-600 transition">
-                  <span className="block mb-2">
-                    Click to upload (max 10 , limit 1MB)
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    onChange={handleChange}
-                  />
-                </label>
+            {verified && (
+              <div className="flex flex-col gap-6">
+                {/* Title */}
+                <input
+                  type="text"
+                  placeholder="Grievance Title"
+                  value={formData.title}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, title: e.target.value }))
+                  }
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition"
+                />
 
-                {files.length > 0 && (
-                  <div className="grid grid-cols-5 gap-3 mt-2">
-                    {files.map((file) => (
-                      <div
-                        key={file.name}
-                        className="relative group border rounded-lg overflow-hidden shadow-sm"
+                {/* Description */}
+                <textarea
+                  placeholder="Description..."
+                  value={formData.grievance}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      grievance: e.target.value,
+                    }))
+                  }
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition h-28"
+                />
+
+                {/* Department Dropdown */}
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => setShowOptions((prev) => !prev)}
+                    className="w-full p-3 border rounded-lg text-left focus:ring-2 focus:ring-green-500 transition"
+                  >
+                    {selectedProblems.length > 0
+                      ? selectedProblems.join(", ")
+                      : "Select Department"}
+                  </button>
+
+                  <div
+                    className={`absolute left-0 mt-2 w-full bg-white border rounded-lg shadow-lg overflow-y-scroll transition-all duration-300 max-h-40 z-20 ${
+                      showOptions
+                        ? "opacity-100 scale-100"
+                        : "opacity-0 scale-95 pointer-events-none"
+                    }`}
+                  >
+                    {departments.map((problem, idx) => (
+                      <label
+                        key={idx}
+                        className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 cursor-pointer"
                       >
-                        <img
-                          src={file.url}
-                          alt={file.name}
-                          className="h-28 w-full object-contain "
+                        <input
+                          type="checkbox"
+                          checked={selectedProblems.includes(problem)}
+                          onChange={() => handleCheckboxChange(problem)}
                         />
-                        <button
-                          onClick={() => removeImage(file.name)}
-                          className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full 
-                                    opacity-80 group-hover:opacity-100 transition"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
+                        <span>{problem}</span>
+                      </label>
                     ))}
                   </div>
-                )}
+                </div>
+
+                {/* File Upload */}
+                <div className="bg-gray-50 border rounded-lg p-4 shadow-sm transition hover:shadow-md">
+                  <h3 className="text-lg font-semibold mb-3">Add Images</h3>
+                  <label className="block cursor-pointer border-2 border-dashed border-green-400 p-6 rounded-lg text-center text-gray-600 hover:bg-green-50 transition">
+                    <span>Click to upload (max 10, 1MB each)</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={handleChange}
+                    />
+                  </label>
+
+                  {files.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-3">
+                      {files.map((file) => (
+                        <div
+                          key={file.name}
+                          className="relative border rounded-lg overflow-hidden shadow-sm group"
+                        >
+                          <img
+                            src={file.url}
+                            alt={file.name}
+                            className="h-28 w-full object-cover group-hover:scale-105 transition"
+                          />
+                          <button
+                            onClick={() => removeImage(file.name)}
+                            className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full 
+                                     opacity-80 hover:opacity-100"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Location Picker */}
+                <LocationPicker onLocationSelect={handleLocationSelect} />
+
+                {/* Submit */}
+                <button
+                  type="submit"
+                  className="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 hover:scale-[1.02] transition"
+                >
+                  Submit Grievance
+                </button>
               </div>
+            )}
+          </form>
+        </div>
 
-              {/* Grievance */}
-              
+        {/* Sidebar */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 flex flex-col gap-6 transition hover:shadow-xl">
+          <div>
+            <h3 className="text-lg text-black md:text-xl font-semibold mb-4">
+              Useful Links
+            </h3>
+            <ul className="space-y-2 text-green-700">
+              <li>
+                <a href="#" className="hover:underline">
+                  Jharkhand Govt Official Website
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:underline">
+                  Citizen Services
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:underline">
+                  Helpline Numbers
+                </a>
+              </li>
+            </ul>
+          </div>
 
-              {/* Location Picker */}
-              <LocationPicker onLocationSelect={handleLocationSelect} />
-
-              {/* Submit */}
-              <button
-                type="submit"
-                className="mt-4 w-full p-2 bg-black border-1 border-[#228B22] text-white py-2 rounded hover:scale-105"
-              >
-                Submit Grievance
-              </button>
-            </div>
-          )}
-        </form>
-      </div>
-
-      {/* Sidebar */}
-      <div className="w-64 overflow-y-clip bg-[#ccc] p-6 rounded-lg shadow">
-        <h2 className="text-lg text-black font-semibold mb-4">Useful Links</h2>
-        <ul className="list-disc list-inside text-black space-y-2">
-          <li>
-            <a
-              href="#"
-              className="underline text-black hover:text-gray-800 visited:text-purple-800"
-            >
-              Jharkhand Govt Official Website
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              className="underline text-black hover:text-gray-800 visited:text-purple-800"
-            >
-              Citizen Services
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              className="underline text-black hover:text-gray-800 visited:text-purple-800"
-            >
-              Helpline Numbers
-            </a>
-          </li>
-        </ul>
+          <div>
+            <h3 className="text-lg text-black md:text-xl font-semibold mb-4">News</h3>
+            <ul className="space-y-2 text-blue-600">
+              <li>
+                <a href="#" className="hover:underline">
+                  Govt launches new complaint monitoring system →
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:underline">
+                  Portal maintenance scheduled for this weekend →
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );
