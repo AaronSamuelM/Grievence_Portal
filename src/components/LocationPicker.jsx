@@ -190,41 +190,45 @@ function LocationPicker({ onLocationSelect }) {
   };
 
   return (
-    <div className="bg-[#ccc] p-3 rounded-lg border relative">
+    <div className="bg-white rounded-xl shadow-md p-4 md:p-6 border relative transition hover:shadow-lg">
       {/* Warning Banner */}
       {warning && (
-        <div className="absolute top-0 left-0 right-0 bg-yellow-400 text-black text-sm text-center py-1 rounded-t">
+        <div className="absolute top-0 left-0 right-0 bg-yellow-400 text-black text-xs md:text-sm text-center py-1 rounded-t animate-pulse">
           {warning}
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-2">
-        <span className="font-semibold text-black">Grievence Location</span>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+        <span className="font-semibold text-gray-800 text-sm md:text-base">
+          📍 Grievance Location
+        </span>
         <button
           type="button"
           onClick={toggleLocationMode}
-          className="text-sm px-2 py-1 border-1 bg-black border-[#228B22] text-white rounded hover:scale-105"
+          className="text-xs md:text-sm px-3 py-1.5 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 hover:scale-105 transition"
         >
           {useCurrent ? "Use Manual" : "Use Current Location"}
         </button>
       </div>
 
+      {/* Manual Address Search */}
       {!useCurrent && (
-        <div className="relative mb-2">
+        <div className="relative mb-3">
           <input
             type="text"
             placeholder="Enter address..."
             value={manualAddress}
             onChange={handleAddressChange}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 md:p-3 text-sm md:text-base border rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none transition"
           />
           {suggestions.length > 0 && (
-            <ul className="absolute z-[9999] w-full bg-white border rounded mt-1 max-h-40 overflow-y-auto shadow">
+            <ul className="absolute z-[9999] w-full bg-white border rounded-lg mt-1 max-h-40 overflow-y-auto shadow-md">
               {suggestions.map((s, idx) => (
                 <li
                   key={idx}
                   onClick={() => handleSuggestionClick(s)}
-                  className="px-2 py-1 hover:bg-gray-200 cursor-pointer"
+                  className="px-3 py-2 text-sm md:text-base hover:bg-gray-100 cursor-pointer transition"
                 >
                   {s.display_name}
                 </li>
@@ -235,7 +239,7 @@ function LocationPicker({ onLocationSelect }) {
       )}
 
       {/* Map */}
-      <div className="rounded-lg overflow-hidden mb-2">
+      <div className="rounded-lg overflow-hidden mb-3 border">
         <MapContainer
           center={[coords.lat, coords.lng]}
           zoom={12}
@@ -261,18 +265,19 @@ function LocationPicker({ onLocationSelect }) {
           <MapClickHandler />
         </MapContainer>
       </div>
-      <div className="flex flex-1 justify-center">
+
+      {/* Confirm Button */}
       {!useCurrent && (
-        <button
-          type="button"
-          onClick={confirmLocation}
-          className="w-38  bg-black border-1 border-[#228B22] text-white py-2 rounded hover:scale-105"
-        >
-          Set Location
-        </button>
-        
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={confirmLocation}
+            className="w-full sm:w-auto px-5 py-2 bg-blue-600 text-white text-sm md:text-base font-medium rounded-lg shadow hover:bg-blue-700 hover:scale-[1.02] transition"
+          >
+            Set Location
+          </button>
+        </div>
       )}
-      </div>
     </div>
   );
 }
