@@ -15,6 +15,7 @@ import Track from "./pages/Track";
 import Contact from "./pages/Contact";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
+import './index.css'
 
 function App() {
   const [_darkMode, _setDarkMode] = useState(false);
@@ -39,7 +40,7 @@ function App() {
 
       {/* Main Content */}
       <main
-        className={`flex-1 overflow-y-scroll overflow-x-hidden no-scrollbar"${
+        className={`flex-1 overflow-y-scroll overflow-x-hidden content ${
           isLoginPage
             ? "w-full h-full"
             : "bg-gray-50 dark:bg-[#dfdfdf] text-gray-800 dark:text-gray-100"

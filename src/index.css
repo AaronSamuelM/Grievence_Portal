@@ -17,6 +17,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.content {
+  -ms-overflow-style: none; 
+  scrollbar-width: none; 
+}
+
+.content::-webkit-scrollbar {
+  display: none;
+}
 
 
 
