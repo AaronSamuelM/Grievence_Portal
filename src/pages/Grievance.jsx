@@ -1,8 +1,10 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import LocationPicker from "../components/LocationPicker";
 import { X } from "lucide-react";
+import { departments } from "../constants/departments";
+import { useRaiseGrievance } from "../queries/grievance";
+import { useSendOTP, useVerifyOTP } from "../queries/otp";
 
-// Custom hook: handles warnings with auto-remove
 const useWarnings = () => {
   const [warnings, setWarnings] = useState([]);
   const showWarning = useCallback((msg) => {
@@ -42,6 +44,7 @@ function Grievance() {
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
+    otp: "",
     title: "",
     grievance: "",
     department: "",
@@ -51,46 +54,6 @@ function Grievance() {
   });
 
   const dropdownRef = useRef(null);
-
-  const departments = useMemo(
-    () => [
-      "Agriculture, Animal Husbandry & Co-operative",
-      "Building Construction",
-      "Cabinet Election",
-      "Cabinet Secretariat and Vigilance",
-      "Commercial Taxes",
-      "Drinking Water and Sanitation",
-      "Energy",
-      "Excise and Prohibition",
-      "Finance",
-      "Food, Public Distribution & Consumer Affairs",
-      "Forest, Environment & Climate Change",
-      "Health, Medical Education & Family Welfare",
-      "Higher and Technical Education",
-      "Home, Jail & Disaster Management",
-      "Industries",
-      "Information & Public Relations",
-      "Information Technology & e-Governance",
-      "Labour, Employment, Training and Skill Development",
-      "Law",
-      "Mines & Geology",
-      "Panchayati Raj",
-      "Personnel, Administrative Reforms & Rajbhasha",
-      "Planning & Development",
-      "Revenue, Registration & Land Reforms",
-      "Road Construction",
-      "Rural Development",
-      "Rural Works",
-      "Scheduled Tribe, Scheduled Caste, Minority and Backward Class Welfare",
-      "School Education & Literacy",
-      "Tourism, Arts, Culture, Sports & Youth Affairs",
-      "Transport",
-      "Urban Development & Housing",
-      "Water Resources",
-      "Women, Child Development & Social Security",
-    ],
-    []
-  );
 
   // File handler
   const handleChange = useCallback(
@@ -138,13 +101,24 @@ function Grievance() {
     if (cooldown > 0) return;
     setVerify(true);
     setCooldown(60);
-    // TODO: Backend OTP call
-  }, [cooldown, setCooldown]);
+    useSendOTP({
+      mobile: formData.mobile
+    })
+  }, [formData, cooldown, setCooldown]);
 
   const handleOtpSubmit = useCallback(() => {
-    setVerified(true);
-    // TODO: Backend OTP verification
-  }, []);
+    useVerifyOTP({
+      mobile: formData.mobile,
+      otp: formData.otp,
+    })
+      .then(() => {
+        setVerified(true);
+      })
+      .catch((error) => {
+        console.error("Error verifying OTP:", error);
+      });
+
+  }, [formData]);
 
   // Location
   const handleLocationSelect = useCallback(({ lat, lng, address }) => {
@@ -171,22 +145,21 @@ function Grievance() {
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
-      const payload = new FormData();
-      Object.entries(formData).forEach(([key, value]) =>
-        payload.append(key, value)
-      );
-      files.forEach((f) => payload.append("images", f.file));
-
-      console.log("Submitting with files:");
-      for (let [key, value] of payload.entries()) {
-        console.log(
-          value instanceof File
-            ? `${key}: ${value.name} (${value.size} bytes)`
-            : `${key}: ${value}`
-        );
+      const tempPayload = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key !== 'otp') {
+          tempPayload.append(key, value)
+        }
       }
+      );
+      tempPayload.append("imageURL", files.map((img) => img.url));
 
-      // TODO: send to backend
+
+      const payload = Object.fromEntries(tempPayload.entries());
+
+      useRaiseGrievance({
+        ...payload
+      })
     },
     [formData, files]
   );
@@ -233,8 +206,9 @@ function Grievance() {
                 type="tel"
                 placeholder="Mobile Number"
                 value={formData.mobile}
-                onChange={(e) =>
+                onChange={(e) => {
                   setFormData((prev) => ({ ...prev, mobile: e.target.value }))
+                }
                 }
                 className="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition"
               />
@@ -255,9 +229,12 @@ function Grievance() {
                 <input
                   type="tel"
                   placeholder="Enter OTP"
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, otp: e.target.value }))
+                  }
                   className="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition"
                 />
-                
+
                 <button
                   type="button"
                   onClick={handleOtpSubmit}
@@ -307,11 +284,10 @@ function Grievance() {
                   </button>
 
                   <div
-                    className={`absolute left-0 mt-2 w-full bg-white border rounded-lg shadow-lg overflow-y-scroll transition-all duration-300 max-h-40 z-20 ${
-                      showOptions
-                        ? "opacity-100 scale-100"
-                        : "opacity-0 scale-95 pointer-events-none"
-                    }`}
+                    className={`absolute left-0 mt-2 w-full bg-white border rounded-lg shadow-lg overflow-y-scroll transition-all duration-300 max-h-40 z-20 ${showOptions
+                      ? "opacity-100 scale-100"
+                      : "opacity-0 scale-95 pointer-events-none"
+                      }`}
                   >
                     {departments.map((problem, idx) => (
                       <label

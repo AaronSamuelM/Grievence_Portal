@@ -12,7 +12,7 @@ const Home = () => {
   const [err, setErr] = useState("");
   
   useEffect(() => {
-    const base = import.meta.env.VITE_API_URL || "";
+    const base = import.meta.env.VITE_APP_API_URL || "";
     const primary = `${base}/stats`;
     const fallback = "/mock/stats.json";
 
