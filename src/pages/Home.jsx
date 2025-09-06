@@ -78,7 +78,7 @@ const Home = () => {
       {/* About + Useful Links + News */}
       <main className="flex flex-1 flex-col md:flex-row lg:flex-row px-8 py-6 bg-gray-100 gap-6" style={{ backgroundImage: "url('./slider202.png')" }}>
         {/* About Section with Image */}
-        <div className="flex-1 bg-[#dddddd65] hover:bg-white p-6 rounded-lg shadow-lg flex items-center gap-6 transition-all hover:scale-101 duration-300 ease-in-out">
+        <div className="flex-1 bg-[#ddddddcb] hover:bg-white p-6 rounded-lg shadow-lg flex items-center gap-6 transition-all hover:scale-101 duration-300 ease-in-out">
           <div className="flex-1">
             <h2 className="text-2xl  font-semibold text-[#22406d] mb-3">About</h2>
             <p className="text-gray-700  text-lg leading-relaxed">
@@ -94,7 +94,7 @@ const Home = () => {
         <aside className="p-2 gap-2 flex flex-1 flex-col rounded text-blue-700 font-medium  hover:text-blue-900 transition duration-200"
 >
           {/* Useful Links */}
-          <div className="bg-[#dddddd65] hover:bg-white transition-all hover:scale-105 duration-300 ease-in-out p-6 rounded-lg shadow-lg">
+          <div className="bg-[#ddddddcb] hover:bg-white transition-all hover:scale-101 duration-300 ease-in-out p-6 rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold text-[#22406d] mb-4">
               Useful Links
             </h2>
@@ -130,7 +130,7 @@ const Home = () => {
           </div>
 
           {/* News Section */}
-          <div className=" p-6 rounded-lg bg-[#dddddd65] transition-all hover:scale-105 duration-300 ease-in-out hover:bg-white shadow-lg">
+          <div className=" p-6 rounded-lg bg-[#ddddddcb] transition-all hover:scale-101 duration-300 ease-in-out hover:bg-white shadow-lg">
             <h2 className="text-xl font-semibold text-[#22406d] mb-4">News</h2>
             <ul className="space-y-3">
               <li>
@@ -199,7 +199,7 @@ const Home = () => {
 <section className="px-8 py-6 bg-gray-50">
   <div
     className="bg-white p-8 rounded-lg shadow-lg flex items-center gap-6
-               hover:bg-gray-200 hover:scale-105 transition-transform duration-300"
+               hover:bg-gray-200  transition-transform duration-300"
   >
     {/* Text Content */}
     <div className="flex-1">

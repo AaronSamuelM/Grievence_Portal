@@ -39,7 +39,7 @@ function App() {
 
       {/* Main Content */}
       <main
-        className={`flex-1 overflow-y-auto overflow-x-hidden no-scrollbar"${
+        className={`flex-1 overflow-y-scroll overflow-x-hidden no-scrollbar"${
           isLoginPage
             ? "w-full h-full"
             : "bg-gray-50 dark:bg-[#dfdfdf] text-gray-800 dark:text-gray-100"
