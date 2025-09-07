@@ -1,70 +1,122 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Undo2 } from "lucide-react";
 import Header1 from "../components/Header1.jsx";
+import { useLoginStart, useLoginVerify } from "../queries/auth.js";
 
 const Login = ({ setLoggedIn }) => {
   const navigate = useNavigate();
-  const handleSubmit = (e) => {
+  const [mobile, setMobile] = useState("");
+  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState("mobile");
+
+  const handleSendOtp = async (e) => {
     e.preventDefault();
-    setLoggedIn(true);
-    navigate("/");
+    try {
+      useLoginStart({ mobile })
+        .then(() => {
+          setStep('otp');
+        })
+        .catch((error) => {
+          console.error("Failed to connect to the Login Server:", error);
+
+        })
+    } catch (err) {
+      console.error(err);
+    }
   };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    try {
+      useLoginVerify({ mobile, otp })
+        .then((data) => {
+          localStorage.setItem("access_token", data.data?.access_token);
+          localStorage.setItem("refresh_token", data.data?.refresh_token);
+          setLoggedIn(true);
+          navigate("/");
+        })
+        .catch((error) => {
+          console.error("Failed to verify the user:", error);
+
+        })
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
-    <div className="flex flex-col ">
-      {/* Sidebar */}
-      {/* Main Content */}
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <Header1 />
-      {/* Content Area */}
-      <main className="flex w-screen pt-14 items-center justify-center">
-        {/* Login Card */}
-        <div className="w-full max-w-md bg-[#ccc] p-8 border-2 border-[#3d3d3dab] rounded-[20px] shadow-2xl">
-          <h2 className="text-3xl font-semibold text-black mb-6 text-center">
-            Login
+      <main className="flex flex-1 items-center justify-center p-6">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+            {step === "mobile" ? "Login" : "Verify OTP"}
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Username */}
+          <form className="space-y-4">
             <div>
-              <label className="block text-black font-medium mb-1">
-                Username
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Mobile Number
               </label>
               <input
-                type="text"
-                className="w-full px-3 py-2 border rounded bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#3e6299]"
-                placeholder="Enter username"
+                type="tel"
+                disabled={step === 'otp'}
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                className={`w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none 
+                 ${step === "otp"
+                    ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                    : "text-gray-800 focus:ring-2 focus:ring-blue-500"
+                  }`}
+                placeholder="Enter mobile number"
                 required
               />
             </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-black font-medium mb-1">
-                Password
-              </label>
-              <input
-                type="password"
-                className="w-full px-3 py-2 border rounded bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#3e6299]"
-                placeholder="Enter password"
-                required
-              />
-            </div>
-
-            {/* Submit Button */}
-            <button
+            {step === 'mobile' && <button
               type="submit"
-              className="w-full bg-[#3e6299] text-[#DAA520] py-2 rounded-lg font-semibold hover:bg-[#2e4a75] transition"
+              onClick={handleSendOtp}
+              className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition"
             >
-              Login
-            </button>
+              Send OTP
+            </button>}
+
+            {step === "otp" && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    OTP
+                  </label>
+                  <input
+                    type="text"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="w-full px-4 py-2 border rounded-lg text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Enter OTP"
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  onClick={handleVerifyOtp}
+                  className="w-full bg-green-600 text-white py-2.5 rounded-lg font-semibold hover:bg-green-700 transition"
+                >
+                  Verify OTP
+                </button>
+              </>
+            )}
           </form>
 
-          {/* Extra Links */}
-          <div className="mt-6 text-center text-black">
-            <a href="#" className="underline hover:text-gray-800">
-              Forgot Password?
-            </a>
-          </div>
+
+          {step === "otp" && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setStep("mobile")}
+                className="text-sm text-blue-600 hover:underline"
+              >
+                Change number
+              </button>
+            </div>
+          )}
         </div>
       </main>
     </div>
