@@ -15,7 +15,7 @@ router.post("/send", async (req, res) => {
   const message = `${otp} is the verification code to raise the grievance in the portal`;
 
   try {
-    // //Comment this axios call and return the message with OTP directly instead of response
+    //Comment this axios call and return the message with OTP directly instead of response
     // const response = await axios.post(
     //   "https://www.fast2sms.com/dev/bulkV2",
     //   {
