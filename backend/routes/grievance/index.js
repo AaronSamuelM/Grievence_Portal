@@ -1,44 +1,67 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 const Grievance = require("../../models/grievanceSchema");
 
-router.post("/raise", async (req, res) => {
-    try {
-        const {
-            name,
-            mobile,
-            title,
-            grievance,
-            department,
-            imageURL,
-            latitude,
-            longitude,
-            address
-        } = req.body;
+const uploadDir = path.join(__dirname, "../../uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
 
-        const grievances = new Grievance({
-            name,
-            mobile,
-            title,
-            grievance,
-            department,
-            imageURL,
-            latitude,
-            longitude,
-            address
-        });
-
-        const savedGrievance = await grievances.save();
-
-        res.status(201).json({
-            message: "Grievance has been raised successfully",
-            data: savedGrievance,
-        });
-    } catch (err) {
-        console.error("Error saving grievance:", err);
-        res.status(500).json({ error: "Server error" });
-    }
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  },
 });
+
+const upload = multer({ storage });
+
+router.post("/raise", upload.array("images", 10), async (req, res) => {
+  try {
+    const {
+      name,
+      mobile,
+      title,
+      grievance,
+      department,
+      latitude,
+      longitude,
+      address,
+    } = req.body;
+
+    const imageURLs = req.files.map(
+      (file) => `/uploads/${file.filename}`
+    );
+
+    const grievances = new Grievance({
+      name,
+      mobile,
+      title,
+      grievance,
+      department,
+      imageURL: imageURLs.join(","),
+      latitude,
+      longitude,
+      address,
+    });
+
+    const savedGrievance = await grievances.save();
+
+    res.status(201).json({
+      message: "Grievance has been raised successfully",
+      data: savedGrievance,
+    });
+  } catch (err) {
+    console.error("Error saving grievance:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+router.use("/uploads", express.static(uploadDir));
 
 router.get("/track", async (req, res) => {
   try {

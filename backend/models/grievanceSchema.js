@@ -23,7 +23,8 @@ const grievanceSchema = new mongoose.Schema(
       required: true,
     },
     imageURL: {
-      type: String
+      type: [String],
+      default: []
     },
     latitude: {
       type: Number,
