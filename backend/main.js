@@ -1,7 +1,6 @@
 const express = require("express");
 const connectDB = require("./db/connect");
 const grievance = require('./routes/grievance/index')
-const otp = require("./routes/otp/index")
 const auth = require("./routes/auth/index")
 const cors = require('cors')
 
@@ -15,7 +14,6 @@ app.use(cors());
 connectDB();
 
 app.use("/grievance", grievance);
-app.use("/otp", otp);
 app.use("/auth", auth);
 
 app.listen(PORT, () => {

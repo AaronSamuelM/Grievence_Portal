@@ -1,57 +1,62 @@
-// routes/auth/index.js
 const express = require("express");
-const axios = require("axios");
 const jwt = require("jsonwebtoken");
+const { sendOtp, verifyOtp } = require("../../services/otp");
+const User = require('../../models/userSchema')
 
 const router = express.Router();
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecret"; 
+const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "refreshsecret";
 
 router.post("/login", async (req, res) => {
   const { mobile } = req.body;
 
-  if (!mobile) {
-    return res.status(400).json({ error: "Mobile number is required" });
-  }
-
   try {
-    const response = await axios.post("http://localhost:5000/otp/send", {
-      mobile,
-    });
+    const result = await sendOtp(mobile);
 
     return res.status(200).json({
       message: "OTP sent via login",
-      data: response.data,
+      data: result,
     });
   } catch (err) {
     console.error("Error in login:", err.message);
-    return res.status(500).json({ error: "Failed to send OTP" });
+    return res.status(500).json({ error: err.message });
   }
 });
 
 router.post("/verify", async (req, res) => {
   const { mobile, otp } = req.body;
 
-  if (!mobile || !otp) {
-    return res.status(400).json({ error: "Mobile and OTP are required" });
-  }
-
   try {
-    const response = await axios.post("http://localhost:5000/otp/verify", {
-      mobile,
-      otp,
-    });
-
-    if (response.data.error) {
+    const valid = verifyOtp(mobile, otp);
+    if (!valid) {
       return res.status(400).json({ error: "Invalid or expired OTP" });
     }
 
-    const accessToken = jwt.sign({ mobile }, JWT_SECRET, {
+    let user = await User.findOne({ mobile });
+
+    if (!user) {
+      user = await User.create({
+        mobile,
+        name: null,
+        location: null,
+        access: "user",
+      });
+    }
+
+    const payload = {
+      id: user._id,
+      mobile: user.mobile,
+      name: user.name,
+      location: user.location,
+      access: user.access,
+    };
+
+    const accessToken = jwt.sign(payload, JWT_SECRET, {
       expiresIn: "1h",
     });
 
-    const refreshToken = jwt.sign({ mobile }, JWT_REFRESH_SECRET, {
+    const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, {
       expiresIn: "24h",
     });
 
@@ -62,7 +67,7 @@ router.post("/verify", async (req, res) => {
     });
   } catch (err) {
     console.error("Error in verify:", err.message);
-    return res.status(500).json({ error: "Failed to verify OTP" });
+    return res.status(400).json({ error: err.message });
   }
 });
 

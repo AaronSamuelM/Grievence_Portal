@@ -3,7 +3,7 @@ import LocationPicker from "../components/LocationPicker";
 import { X } from "lucide-react";
 import { departments } from "../constants/departments";
 import { useRaiseGrievance } from "../queries/grievance";
-import { useSendOTP, useVerifyOTP } from "../queries/otp";
+import { useLoginStart, useLoginVerify } from "../queries/auth";
 
 const useWarnings = () => {
   const [warnings, setWarnings] = useState([]);
@@ -101,13 +101,13 @@ function Grievance() {
     if (cooldown > 0) return;
     setVerify(true);
     setCooldown(60);
-    useSendOTP({
+    useLoginStart({
       mobile: formData.mobile
     })
   }, [formData, cooldown, setCooldown]);
 
   const handleOtpSubmit = useCallback(() => {
-    useVerifyOTP({
+    useLoginVerify({
       mobile: formData.mobile,
       otp: formData.otp,
     })
@@ -143,26 +143,23 @@ function Grievance() {
 
   // Submit
   const handleSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
-      const tempPayload = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key !== 'otp') {
-          tempPayload.append(key, value)
-        }
+  async (e) => {
+    e.preventDefault();
+    const tempPayload = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key !== "otp") {
+        tempPayload.append(key, value);
       }
-      );
-      tempPayload.append("imageURL", files.map((img) => img.url));
+    });
 
+    files.forEach((img) => {
+      tempPayload.append("images", img.file);
+    });
 
-      const payload = Object.fromEntries(tempPayload.entries());
-
-      useRaiseGrievance({
-        ...payload
-      })
-    },
-    [formData, files]
-  );
+    await useRaiseGrievance(tempPayload);
+  },
+  [formData, files]
+);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -189,28 +186,21 @@ function Grievance() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5 text-gray-700">
-            {/* Name */}
-            <input
-              type="text"
-              placeholder="Your Name"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, name: e.target.value }))
-              }
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition"
-            />
-
             {/* Mobile + OTP */}
             <div className="flex flex-col md:flex-row gap-3">
               <input
                 type="tel"
                 placeholder="Mobile Number"
                 value={formData.mobile}
+                disabled={verified}
                 onChange={(e) => {
                   setFormData((prev) => ({ ...prev, mobile: e.target.value }))
                 }
                 }
-                className="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition"
+                className={`flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition ${verified
+                    ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                    : "text-gray-800 focus:ring-2 focus:ring-blue-500"
+                  }`}
               />
               {!verified && (
                 <button
@@ -247,6 +237,16 @@ function Grievance() {
 
             {verified && (
               <div className="flex flex-col gap-6">
+                {/* Name */}
+                <input
+                  type="text"
+                  placeholder="Your Name"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition"
+                />
                 {/* Title */}
                 <input
                   type="text"
