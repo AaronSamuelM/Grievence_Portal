@@ -62,7 +62,9 @@ function App() {
           Admin Portal
         </button>
       </div>
-      {!isLoginPage && <Sidebar LoggedIn={LoggedIn} setLoggedIn={setLoggedIn} />}
+      {!isLoginPage && (
+        <Sidebar LoggedIn={LoggedIn} setLoggedIn={setLoggedIn} />
+      )}
       <GlobalWarning />
       {!isLoginPage && <Header1 />}
 
@@ -86,13 +88,24 @@ function App() {
             <Route path="/links" element={<Links />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/login" element={<Login setLoggedIn={setLoggedIn} />} />
+            <Route
+              path="/login"
+              element={<Login setLoggedIn={setLoggedIn} />}
+            />
           </Routes>
         </animated.div>
       </main>
 
-      <footer className="bg-[#22406d] text-white text-center py-4">
-        © 2025 Government of Jharkhand | Helpline: 1800-123-456
+      <footer className="bg-[#22406d] text-white py-4">
+        <div
+          className="container mx-auto px-4 
+                  flex flex-col text-sm items-center justify-center gap-2
+                  md:flex-row md:text-lg 
+                  lg:px-20 lg:text-xl"
+        >
+          <p>© 2025 Government of Jharkhand</p>
+          <p>Helpline: 1800-123-456</p>
+        </div>
       </footer>
     </div>
   );
