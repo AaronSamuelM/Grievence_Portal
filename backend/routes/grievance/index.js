@@ -22,20 +22,8 @@ const upload = multer({ storage });
 
 router.post("/raise", upload.array("images", 10), async (req, res) => {
   try {
-    const {
-      name,
-      mobile,
-      title,
-      grievance,
-      department,
-      latitude,
-      longitude,
-      address,
-    } = req.body;
-
-    const imageURLs = req.files.map(
-      (file) => `/uploads/${file.filename}`
-    );
+    const { name, mobile, title, grievance, department, latitude, longitude, address } = req.body;
+    const imageURLs = req.files.map((file) => `/uploads/${file.filename}`);
 
     const grievances = new Grievance({
       name,
@@ -51,15 +39,23 @@ router.post("/raise", upload.array("images", 10), async (req, res) => {
 
     const savedGrievance = await grievances.save();
 
-    res.status(201).json({
-      message: "Grievance has been raised successfully",
-      data: savedGrievance,
-    });
+    // Check if the grievance ID is set and return it
+    if (savedGrievance.id) {
+      res.status(201).json({
+        message: "Grievance has been raised successfully",
+        data: {
+          id: savedGrievance.id, // Ensure this is being returned properly
+        },
+      });
+    } else {
+      res.status(400).json({ error: "Grievance ID not generated" });
+    }
   } catch (err) {
     console.error("Error saving grievance:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
+
 
 router.use("/uploads", express.static(uploadDir));
 
