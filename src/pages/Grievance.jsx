@@ -17,7 +17,6 @@ const useWarnings = () => {
   return { warnings, showWarning };
 };
 
-// Custom hook: handles OTP cooldown
 const useCooldown = (initial = 0) => {
   const [cooldown, setCooldown] = useState(initial);
 
@@ -37,9 +36,11 @@ function Grievance() {
   const [showOptions, setShowOptions] = useState(false);
   const [verify, setVerify] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false); // New state for overlay
   const { warnings, showWarning } = useWarnings();
   const [cooldown, setCooldown] = useCooldown(0);
   const [files, setFiles] = useState([]);
+  const [submissionId, setSubmissionId] = useState(null);  // New state for submission ID
 
   const [formData, setFormData] = useState({
     name: "",
@@ -55,7 +56,6 @@ function Grievance() {
 
   const dropdownRef = useRef(null);
 
-  // File handler
   const handleChange = useCallback(
     (e) => {
       const selectedFiles = Array.from(e.target.files);
@@ -86,17 +86,23 @@ function Grievance() {
     []
   );
 
-  // Department handler
   const handleCheckboxChange = useCallback((problem) => {
-    setSelectedProblems((prev) =>
-      prev.includes(problem)
-        ? prev.filter((item) => item !== problem)
-        : [...prev, problem]
-    );
-    setFormData((prev) => ({ ...prev, department: problem }));
-  }, []);
+  setSelectedProblems((prev) => {
+    const updatedProblems = prev.includes(problem)
+      ? prev.filter((item) => item !== problem)
+      : [...prev, problem];
 
-  // OTP
+    // Set department directly based on the updated problems
+    setFormData((prevData) => ({
+      ...prevData,
+      department: updatedProblems,  // Use updatedProblems directly
+    }));
+
+    return updatedProblems;
+  });
+}, []);
+
+
   const requestOtp = useCallback(() => {
     if (cooldown > 0) return;
     setVerify(true);
@@ -120,7 +126,6 @@ function Grievance() {
 
   }, [formData]);
 
-  // Location
   const handleLocationSelect = useCallback(({ lat, lng, address }) => {
     setFormData((prev) => ({
       ...prev,
@@ -130,7 +135,6 @@ function Grievance() {
     }));
   }, []);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -141,7 +145,6 @@ function Grievance() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Submit
   const handleSubmit = useCallback(
   async (e) => {
     e.preventDefault();
@@ -156,10 +159,21 @@ function Grievance() {
       tempPayload.append("images", img.file);
     });
 
-    await useRaiseGrievance(tempPayload);
+    try {
+      // Sending the form data to the backend
+      const response = await useRaiseGrievance(tempPayload); 
+      console.log("Server Response:", response.data.data.id);
+      setSubmissionId(response.data.data.id);
+        setShowOverlay(true);  // Show the overlay with the ID
+      
+    } catch (error) {
+      console.error("Error submitting grievance:", error);
+      showWarning("Failed to submit grievance. Please try again.");
+    }
   },
   [formData, files]
 );
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -194,9 +208,8 @@ function Grievance() {
                 value={formData.mobile}
                 disabled={verified}
                 onChange={(e) => {
-                  setFormData((prev) => ({ ...prev, mobile: e.target.value }))
-                }
-                }
+                  setFormData((prev) => ({ ...prev, mobile: e.target.value }));
+                }}
                 className={`flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition ${verified
                     ? "bg-gray-100 text-gray-500 cursor-not-allowed"
                     : "text-gray-800 focus:ring-2 focus:ring-blue-500"
@@ -354,9 +367,16 @@ function Grievance() {
                 >
                   Submit Grievance
                 </button>
+
+                {submissionId && (
+                  <div className="mt-4 text-center text-green-600">
+                    Grievance submitted successfully! Your ID is: {submissionId}
+                  </div>
+                )}
               </div>
             )}
           </form>
+          
         </div>
 
         {/* Sidebar */}
@@ -401,6 +421,24 @@ function Grievance() {
           </div>
         </div>
       </div>
+      {showOverlay && (
+        <div className="fixed inset-0  bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full text-center">
+            <h2 className="text-2xl font-bold text-gray-700 mb-4">
+              Your Grievance ID: {submissionId}  {/* Display Grievance ID */}
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Thank you for submitting your grievance. You can use this ID for future reference.
+            </p>
+            <button
+              onClick={() => setShowOverlay(false)}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
