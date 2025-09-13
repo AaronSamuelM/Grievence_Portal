@@ -1,4 +1,3 @@
-// components/GlobalWarning.jsx
 import { useWarning } from "../context/WarningContext";
 
 const GlobalWarning = () => {

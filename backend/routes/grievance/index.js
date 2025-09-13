@@ -38,13 +38,11 @@ router.post("/raise", upload.array("images", 10), async (req, res) => {
     });
 
     const savedGrievance = await grievances.save();
-
-    // Check if the grievance ID is set and return it
     if (savedGrievance.id) {
       res.status(201).json({
         message: "Grievance has been raised successfully",
         data: {
-          id: savedGrievance.id, // Ensure this is being returned properly
+          id: savedGrievance.id,
         },
       });
     } else {

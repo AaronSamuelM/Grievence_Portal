@@ -11,8 +11,8 @@ async function sendOtp(mobile) {
 
   try {
     // NOTE: If you don’t want to actually call Fast2SMS in dev, just return otp here
-    otpCache.set(mobile, { otp, expires: Date.now() + 5 * 60 * 1000 });
-    return { otp, message: "OTP generated (mock)" };
+      otpCache.set(mobile, { otp, expires: Date.now() + 5 * 60 * 1000 });
+      return { otp, message: "OTP generated (mock)" };
 
     await axios.post(
       "https://www.fast2sms.com/dev/bulkV2",

@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect } from "react";
+import { useState, useLayoutEffect, useEffect } from "react";
 import { useNavigate, Routes, Route, useLocation } from "react-router-dom";
 import { Undo2 } from "lucide-react";
 import { useSpring, animated } from "@react-spring/web";
@@ -17,34 +17,46 @@ import "./index.css";
 
 function App() {
   const [_darkMode, _setDarkMode] = useState(false);
-  const [LoggedIn, setLoggedIn] = useState(false);
+  const [LoggedIn, setLoggedIn] = useState(() => {
+    return !!localStorage.getItem("access_token");
+  });
   const location = useLocation();
   const navigate = useNavigate();
   const isLoginPage = location.pathname === "/login";
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      setLoggedIn(true);
+    } else {
+      setLoggedIn(false);
+      // if (!isLoginPage) {
+      //   navigate("/login"); // optional redirect if token missing
+      // }
+    }
+  }, []);
 
-  // React Spring transition hook
-  const [style, api] = useSpring(() => ({
-    opacity: 0,
-    transform: "translateY(20px)",
-  }));
+  // const [style, api] = useSpring(() => ({
+  //   opacity: 0,
+  //   transform: "translateY(20px)",
+  // }));
 
-  useLayoutEffect(() => {
-    // Trigger the entry animation on location change
-    api.start({
-      opacity: 1,
-      transform: "translateY(0)",
-      config: { duration: 500 },
-    });
+  // useLayoutEffect(() => {
+   
+  //   api.start({
+  //     opacity: 100,
+  //     transform: "translateY(0)",
+  //     config: { duration: 300 },
+  //   });
 
-    return () => {
-      // Optionally trigger an exit animation when the page changes
-      api.start({
-        opacity: 0,
-        transform: "translateY(20px)",
-        config: { duration: 300 },
-      });
-    };
-  }, [location.key, api]); // Use location.key to track location changes
+  //   return () => {
+      
+  //     api.start({
+  //       opacity: 0,
+  //       transform: "translateY(20px)",
+  //       config: { duration: 300 },
+  //     });
+  //   };
+  // }, [location.key, api]); 
 
   return (
     <div className="flex flex-col min-h-screen max-h-screen overflow-y-auto overflow-x-hidden scrollbar-hide">
@@ -68,7 +80,6 @@ function App() {
       <GlobalWarning />
       {!isLoginPage && <Header1 />}
 
-      {/* Page Transition with React Spring */}
       <main
         className={`flex-1 overflow-y-scroll overflow-x-hidden content ${
           isLoginPage
@@ -76,13 +87,13 @@ function App() {
             : "bg-gray-50 dark:bg-[#dfdfdf] text-gray-800 dark:text-gray-100"
         }`}
       >
-        <animated.div
-          style={style} // Apply spring animation style to the div
-          key={location.key} // This forces re-mount on location change
-        >
+        {/* <animated.div
+          style={style} 
+          key={location.key} 
+        > */}
           <Routes location={location}>
             <Route path="/" element={<Home />} />
-            <Route path="/grievance" element={<Grievance />} />
+            <Route path="/grievance" element={<Grievance setLoggedIn={setLoggedIn} />} />
             <Route path="/track" element={<Track />} />
             <Route path="/about" element={<About />} />
             <Route path="/links" element={<Links />} />
@@ -93,7 +104,7 @@ function App() {
               element={<Login setLoggedIn={setLoggedIn} />}
             />
           </Routes>
-        </animated.div>
+        {/* </animated.div> */}
       </main>
 
       <footer className="bg-[#22406d] text-white py-4">

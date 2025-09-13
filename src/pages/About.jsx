@@ -4,8 +4,6 @@ const About = () => {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [hovering, setHovering] = useState(false);
   const [isDesktop, setIsDesktop] = useState(true);
-
-  // Check for desktop or mobile devices
   useEffect(() => {
     const updateDeviceType = () => {
       if (window.innerWidth >= 1024) {
@@ -14,54 +12,38 @@ const About = () => {
         setIsDesktop(false);
       }
     };
-
-    updateDeviceType(); // Check initial window size
-
-    window.addEventListener("resize", updateDeviceType); // Update on window resize
-
+    updateDeviceType();
+    window.addEventListener("resize", updateDeviceType); 
     return () => {
-      window.removeEventListener("resize", updateDeviceType); // Clean up the event listener
+      window.removeEventListener("resize", updateDeviceType); 
     };
   }, []);
-
-  // Handle mouse move only on desktop
   const handleMouseMove = (e) => {
     if (!hovering || !isDesktop) return;
-
     const { clientX, clientY } = e;
     const { left, top, width, height } = e.target.getBoundingClientRect();
-
-    // Calculate tilt based on mouse position
     const centerX = left + width / 2;
     const centerY = top + height / 2;
     const deltaX = clientX - centerX;
     const deltaY = clientY - centerY;
-
-    // Normalize tilt values to [-1, 1] range
     setTilt({
       x: deltaX / (width / 2),
       y: deltaY / (height / 2),
     });
   };
-
   const handleMouseEnter = () => {
     setHovering(true);
   };
-
   const handleMouseLeave = () => {
     setHovering(false);
-    setTilt({ x: 0, y: 0 }); // Reset tilt when the cursor leaves
+    setTilt({ x: 0, y: 0 }); 
   };
-
-  // Apply tilt effect to the image
   const tiltStyle = {
     transform: `perspective(1000px) rotateX(${tilt.y * 10}deg) rotateY(${tilt.x * 10}deg)`,
-    transition: "transform 0.1s ease-out", // Smooth transition for tilting
+    transition: "transform 0.1s ease-out", 
   };
-
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* About Section */}
       <section className="py-6 bg-[#f5f5f5] text-center">
         <h1 className="text-4xl font-bold text-[#22406d]">Jharkhand at a Glance</h1>
         <p className="text-lg text-gray-700 mt-2">
@@ -69,7 +51,6 @@ const About = () => {
         </p>
       </section>
 
-      {/* Image and Text Section */}
       <section className="flex flex-col md:flex-row lg:flex-row items-center justify-between gap-8 px-6 py-12 bg-white">
         <div className="flex-1 text-center md:text-left">
           <p className="text-lg leading-relaxed text-gray-700 mb-4">
@@ -80,7 +61,6 @@ const About = () => {
           </p>
           <h2 className="text-2xl font-semibold text-[#22406d] mb-4">Government Officials</h2>
           <div className="flex justify-center gap-12">
-            {/* Official Cards */}
             <div className="text-center hover:scale-105 transition-transform duration-300">
               <img src="/D001WhosWho31072024081249514.jpeg" alt="Governor" className="w-24 h-24 rounded-full mx-auto mb-4" />
               <p className="text-xl font-semibold text-[#22406d]">Shri Santosh Kumar Gangwar</p>
@@ -100,22 +80,18 @@ const About = () => {
             </div>
           </div>
         </div>
-
-        {/* Jharkhand Map Image with Tilt Effect */}
         <div className="flex-1">
           <img
             src="/jharkhand-map.png"
             alt="Jharkhand Map"
             className="w-full max-w-lg mx-auto rounded-lg shadow-lg"
-            style={tiltStyle}  // Apply dynamic tilt style
-            onMouseMove={handleMouseMove}  // Track mouse movements over the image
-            onMouseEnter={handleMouseEnter} // Set hover state when entering image area
-            onMouseLeave={handleMouseLeave} // Reset tilt when mouse leaves image
+            style={tiltStyle}  
+            onMouseMove={handleMouseMove} 
+            onMouseEnter={handleMouseEnter} 
+            onMouseLeave={handleMouseLeave}
           />
         </div>
       </section>
-
-      {/* Additional Sections */}
       <section className="px-8 py-6 bg-gray-50">
         <h2 className="text-3xl font-bold text-center text-[#22406d] mb-6">Facts about Jharkhand</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -134,7 +110,6 @@ const About = () => {
         </div>
       </section>
 
-      {/* History Section */}
       <section className="px-8 py-6 bg-white">
         <h2 className="text-3xl font-bold text-center text-[#22406d] mb-6">History of Jharkhand</h2>
         <p className="text-lg text-gray-700 leading-relaxed mb-4">
@@ -142,7 +117,6 @@ const About = () => {
         </p>
       </section>
 
-      {/* Economy Section */}
       <section className="px-8 py-6 bg-gray-50">
         <h2 className="text-3xl font-bold text-center text-[#22406d] mb-6">Economy of Jharkhand</h2>
         <p className="text-lg text-gray-700 leading-relaxed mb-4">
@@ -150,7 +124,6 @@ const About = () => {
         </p>
       </section>
 
-      {/* Culture Section */}
       <section className="px-8 py-6 bg-white">
         <h2 className="text-3xl font-bold text-center text-[#22406d] mb-6">Culture of Jharkhand</h2>
         <p className="text-lg text-gray-700 leading-relaxed mb-4">
@@ -160,5 +133,4 @@ const About = () => {
     </div>
   );
 };
-
 export default About;
