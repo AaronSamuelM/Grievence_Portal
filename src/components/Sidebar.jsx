@@ -48,6 +48,8 @@ const Sidebar = ({ LoggedIn, setLoggedIn }) => {
     if (LoggedIn) {
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
+      localStorage.removeItem("user_name");  
+      localStorage.removeItem("user_mobile");
       setLoggedIn(false);
       showWarning && showWarning("Logout successful"); 
       navigate("/");

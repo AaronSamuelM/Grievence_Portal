@@ -3,7 +3,7 @@ import LocationPicker from "../components/LocationPicker";
 import { X } from "lucide-react";
 import { departments } from "../constants/departments";
 import { useRaiseGrievance } from "../queries/grievance";
-import { useLoginStart, useLoginVerify } from "../queries/auth";
+import { useLoginStart, useLoginVerify, useLoginRefresh } from "../queries/auth";
 
 const useWarnings = () => {
   const [warnings, setWarnings] = useState([]);
@@ -31,7 +31,7 @@ const useCooldown = (initial = 0) => {
   return [cooldown, setCooldown];
 };
 
-function Grievance({setLoggedIn}) {
+function Grievance({ setLoggedIn }) {
   const [selectedProblems, setSelectedProblems] = useState([]);
   const [showOptions, setShowOptions] = useState(false);
   const [verify, setVerify] = useState(false);
@@ -55,6 +55,50 @@ function Grievance({setLoggedIn}) {
   });
 
   const dropdownRef = useRef(null);
+
+  // 🔹 Auto load from localStorage + refresh token
+  useEffect(() => { // CHANGED
+    const tokenName = localStorage.getItem("user_name"); // CHANGED
+    const tokenMobile = localStorage.getItem("user_mobile"); // CHANGED
+    const access = localStorage.getItem("access_token"); // CHANGED
+    const refresh = localStorage.getItem("refresh_token"); // CHANGED
+
+    if (access && refresh) { // CHANGED
+      // Attempt refresh on mount
+      useLoginRefresh({ refresh_token: refresh })
+        .then((res) => res.data)
+        .then((data) => {
+          if (data?.access_token) {
+            localStorage.setItem("access_token", data.access_token);
+            if (data.refresh_token) {
+              localStorage.setItem("refresh_token", data.refresh_token);
+            }
+            // 🔹 Save fresh user data
+            localStorage.setItem("user_name", data.user?.name || "");
+            localStorage.setItem("user_mobile", data.user?.mobile || "");
+
+            setVerified(true);
+            setLoggedIn(true);
+            setFormData((prev) => ({
+              ...prev,
+              name: data.user?.name || tokenName || prev.name,
+              mobile: data.user?.mobile || tokenMobile || prev.mobile,
+            }));
+          } else {
+            console.warn("Token refresh failed");
+          }
+        })
+        .catch((err) => console.error("Refresh error:", err));
+    } else if (tokenName || tokenMobile) { // CHANGED
+      setFormData((prev) => ({ // CHANGED
+        ...prev, // CHANGED
+        name: tokenName || prev.name, // CHANGED
+        mobile: tokenMobile || prev.mobile, // CHANGED
+      })); // CHANGED
+      setVerified(true); // CHANGED
+      setLoggedIn(true); // CHANGED
+    } // CHANGED
+  }, [setLoggedIn]); // CHANGED
 
   // Image Upload
   const handleChange = useCallback(
@@ -132,6 +176,8 @@ function Grievance({setLoggedIn}) {
       .then((data) => {
         localStorage.setItem("access_token", data.data?.access_token);
         localStorage.setItem("refresh_token", data.data?.refresh_token);
+        localStorage.setItem("user_name", formData.name || ""); // CHANGED
+        localStorage.setItem("user_mobile", formData.mobile || ""); // CHANGED
         setVerified(true);
         setLoggedIn(true);
       })
@@ -139,7 +185,7 @@ function Grievance({setLoggedIn}) {
         console.error("Error verifying OTP:", error);
         showWarning("Invalid OTP. Please try again.");
       });
-  }, [formData, showWarning]);
+  }, [formData, showWarning, setLoggedIn]); // CHANGED
 
   // Location
   const handleLocationSelect = useCallback(({ lat, lng, address }) => {
@@ -225,32 +271,34 @@ function Grievance({setLoggedIn}) {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5 text-gray-700">
             {/* Mobile + OTP */}
-            <div className="flex flex-col md:flex-row gap-3">
-              <input
-                type="tel"
-                placeholder="Mobile Number"
-                value={formData.mobile}
-                disabled={verified}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, mobile: e.target.value }))
-                }
-                className={`flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition ${
-                  verified
-                    ? "bg-gray-100 text-gray-500 cursor-not-allowed"
-                    : "text-gray-800 focus:ring-2 focus:ring-blue-500"
-                }`}
-              />
-              {!verified && (
-                <button
-                  type="button"
-                  onClick={requestOtp}
-                  disabled={cooldown > 0}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 hover:scale-105 transition disabled:opacity-50"
-                >
-                  {cooldown > 0 ? `Resend in ${cooldown}s` : "Send OTP"}
-                </button>
-              )}
-            </div>
+            {!verified && ( // CHANGED
+              <div className="flex flex-col md:flex-row gap-3"> {/* CHANGED */}
+                <input
+                  type="tel"
+                  placeholder="Mobile Number"
+                  value={formData.mobile}
+                  disabled={verified}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, mobile: e.target.value }))
+                  }
+                  className={`flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition ${
+                    verified
+                      ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                      : "text-gray-800 focus:ring-2 focus:ring-blue-500"
+                  }`}
+                />
+                {!verified && (
+                  <button
+                    type="button"
+                    onClick={requestOtp}
+                    disabled={cooldown > 0}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 hover:scale-105 transition disabled:opacity-50"
+                  >
+                    {cooldown > 0 ? `Resend in ${cooldown}s` : "Send OTP"}
+                  </button>
+                )}
+              </div> 
+            )} {/* CHANGED */}
 
             {verify && !verified && (
               <div className="flex flex-col md:flex-row gap-3">
@@ -404,7 +452,6 @@ function Grievance({setLoggedIn}) {
             )}
           </form>
         </div>
-
         {/* Sidebar */}
         <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 flex flex-col gap-6 transition hover:shadow-xl">
           <div>
@@ -452,7 +499,7 @@ function Grievance({setLoggedIn}) {
 
       {/* Overlay */}
       {showOverlay && (
-        <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-1000">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full text-center">
             <h2 className="text-2xl font-bold text-gray-700 mb-4">
               Your Grievance ID: {submissionId}

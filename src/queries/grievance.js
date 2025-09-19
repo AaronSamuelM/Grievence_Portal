@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GRIEVANCE_RAISE, GRIEVANCE_TRACK } from "../constants/api";
+import { GRIEVANCE_RAISE, GRIEVANCE_TRACK, GRIEVANCE_LIST } from "../constants/api";
 const { VITE_APP_API_URL } = import.meta.env
 
 export const useRaiseGrievance = (formData) => {
@@ -17,14 +17,13 @@ export const useRaiseGrievance = (formData) => {
 
 
 export const useTrackGrievance = (args) => {
-    return axios.get(VITE_APP_API_URL + GRIEVANCE_TRACK,
-        {
-            params: {
-                ...args,
-            },
-            headers: {
-                Authorization: localStorage.getItem('access_token')
-            }
-        }
-    )
-}
+  return axios.post(VITE_APP_API_URL + GRIEVANCE_TRACK, {
+    ...args,
+  });
+};
+
+export const useListGrievances = (args) => {
+  return axios.post(VITE_APP_API_URL + GRIEVANCE_LIST, {
+    ...args,
+  });
+};
