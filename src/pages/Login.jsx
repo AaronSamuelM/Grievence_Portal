@@ -32,6 +32,7 @@ const Login = ({ setLoggedIn }) => {
         .then((data) => {
           localStorage.setItem("access_token", data.data?.access_token);
           localStorage.setItem("refresh_token", data.data?.refresh_token);
+          localStorage.setItem("access", "user");
           setLoggedIn(true);
           navigate("/");
         })

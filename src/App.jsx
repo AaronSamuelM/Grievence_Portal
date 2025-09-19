@@ -15,6 +15,9 @@ import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import Alogin from "./pages/Alogin";
 import Asignup from "./pages/Asignup";
+import AHome from "./pages/Ahome.jsx";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AccessDenied from "./components/AccessDenied";
 import "./index.css";
 
 function App() {
@@ -107,8 +110,15 @@ function App() {
               path="/login"
               element={<Login setLoggedIn={setLoggedIn} />}
             />
-            <Route path="/alogin" element={<Alogin />} />
-            <Route path="/asignup" element={<Asignup />} />
+            <Route
+          path="/ahome"
+          element={
+              <AHome />
+          }
+        />
+            <Route path="/alogin" element={<Alogin setLoggedIn={setLoggedIn}/>} />
+            <Route path="/asignup" element={<Asignup setLoggedIn={setLoggedIn}/>} />
+            <Route path="/access-denied" element={<AccessDenied />} />
           </Routes>
         {/* </animated.div> */}
       </main>

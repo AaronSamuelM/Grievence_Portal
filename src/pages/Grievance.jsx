@@ -178,6 +178,8 @@ function Grievance({ setLoggedIn }) {
         localStorage.setItem("refresh_token", data.data?.refresh_token);
         localStorage.setItem("user_name", formData.name || ""); // CHANGED
         localStorage.setItem("user_mobile", formData.mobile || ""); // CHANGED
+        localStorage.setItem("access", "user");
+
         setVerified(true);
         setLoggedIn(true);
       })
