@@ -1,23 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header1 from "../components/Header1.jsx";
 import { useAdminLoginStart, useAdminLoginVerify } from "../queries/adminAuth.js";
+import AccessDenied from "../components/AccessDenied.jsx";  // 👈 import
 
 const Login = ({ setLoggedIn }) => {
   const navigate = useNavigate();
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState("mobile");
+  const [allowed, setAllowed] = useState(true);
+  useEffect(() => {
+    const access = localStorage.getItem("access");
+    if (access && access === "admin") {
+      navigate("/ahome");
+      setAllowed(false); // block non-admins
+    }
+  }, []);
 
+  
   const handleSendOtp = async (e) => {
     e.preventDefault();
     try {
-      useAdminLoginStart({ mobile })
-        .then(() => {
-          setStep('otp');
-        })
+      useAdminLoginStart({ mobile, access: "admin" })
+        .then(() => setStep("otp"))
         .catch((error) => {
           console.error("Failed to connect to the Login Server:", error);
+          alert("Login failed. Only admin accounts allowed.");
         });
     } catch (err) {
       console.error(err);
@@ -27,15 +36,22 @@ const Login = ({ setLoggedIn }) => {
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     try {
-      useAdminLoginVerify({ mobile, otp })
-        .then((data) => {
-          localStorage.setItem("access_token", data.data?.access_token);
-          localStorage.setItem("refresh_token", data.data?.refresh_token);
+      useAdminLoginVerify({ mobile, otp})
+        .then((res) => {
+          const data = res.data;
+          // if (data?.access !== "admin") {
+          //   alert("Access denied. Only admins can login.");
+          //   return;
+          // }
+          localStorage.setItem("access_token", data?.access_token);
+          localStorage.setItem("refresh_token", data?.refresh_token);
+          localStorage.setItem("access", "admin");
           setLoggedIn(true);
-          navigate("/");
+          navigate("/ahome");
         })
         .catch((error) => {
           console.error("Failed to verify the user:", error);
+          alert("Invalid OTP or access denied.");
         });
     } catch (err) {
       console.error(err);
@@ -48,7 +64,7 @@ const Login = ({ setLoggedIn }) => {
       <main className="flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
           <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-            {step === "mobile" ? "Login" : "Verify OTP"}
+            {step === "mobile" ? "Admin Login" : "Verify OTP"}
           </h2>
 
           <form className="space-y-4">
@@ -58,7 +74,7 @@ const Login = ({ setLoggedIn }) => {
               </label>
               <input
                 type="tel"
-                disabled={step === 'otp'}
+                disabled={step === "otp"}
                 value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
                 className={`w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none 
@@ -66,11 +82,11 @@ const Login = ({ setLoggedIn }) => {
                     ? "bg-gray-100 text-gray-500 cursor-not-allowed"
                     : "text-gray-800 focus:ring-2 focus:ring-blue-500"
                   }`}
-                placeholder="Enter mobile number"
+                placeholder="Enter admin mobile number"
                 required
               />
             </div>
-            {step === 'mobile' && (
+            {step === "mobile" && (
               <button
                 type="submit"
                 onClick={handleSendOtp}
@@ -116,8 +132,6 @@ const Login = ({ setLoggedIn }) => {
               </button>
             </div>
           )}
-
-          {/* Add this below the form */}
           {step === "mobile" && (
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">

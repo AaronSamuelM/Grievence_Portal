@@ -39,19 +39,26 @@ const Sidebar = ({ LoggedIn, setLoggedIn }) => {
     setDarkMode(!darkMode);
     document.documentElement.classList.toggle("dark");
   };
-  const menuItems = [
+  const userMenuItems = [
     { name: "Home", icon: <Home size={22} />, path: "/" },
     { name: "Raise Grievance", icon: <FileText size={22} />, path: "/grievance" },
     { name: "Track Complaint", icon: <Search size={22} />, path: "/track" },
     { name: "About", icon: <Info size={22} />, path: "/about" },
     { name: "Contact Us", icon: <Phone size={22} />, path: "/contact" },
   ];
+  const adminMenuItems = [
+    { name: "Dashboard", icon: <Home size={22} />, path: "/ahome" },
+  ];
+
+  const menuItems = localStorage.getItem('access') === "admin" ? adminMenuItems : userMenuItems;
   const handleAuth = () => {
     if (LoggedIn) {
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
       localStorage.removeItem("user_name");  
       localStorage.removeItem("user_mobile");
+      localStorage.removeItem("access");
+      localStorage.clear();
       setLoggedIn(false);
       showWarning && showWarning("Logout successful"); 
       navigate("/");

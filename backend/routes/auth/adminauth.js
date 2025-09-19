@@ -34,22 +34,23 @@ router.post("/login", async (req, res) => {
 // =======================
 // Admin Login - Verify OTP
 // =======================
+// =======================
+// Admin Login - Verify OTP
+// =======================
 router.post("/verify", async (req, res) => {
   const { mobile, otp } = req.body;
 
   try {
-    // validate OTP
-    const isValid = await verifyOtp(mobile, otp); // <-- make sure verifyOtp is async if service is
+    const isValid = verifyOtp(mobile, otp); // no await since it's sync now
     if (!isValid) {
       return res.status(400).json({ error: "Invalid or expired OTP" });
     }
 
-    const admin = await Admin.findOne({ mobile, access: "admin" });
-    if (!admin) {
-      return res.status(403).json({ error: "Only admin accounts allowed here" });
-    }
+    const admin = await Admin.findOne({ mobile});
+    // if (!admin) {
+    //   return res.status(403).json({ error: "Only admin accounts allowed here" });
+    // }
 
-    // build JWT payload
     const payload = {
       id: admin._id,
       mobile: admin.mobile,
@@ -59,7 +60,6 @@ router.post("/verify", async (req, res) => {
 
     const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
     const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: "24h" });
-    refreshTokens.push(refreshToken);
 
     res.json({
       message: "Admin login success",
@@ -68,8 +68,10 @@ router.post("/verify", async (req, res) => {
       user: payload,
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    // catch the thrown error from verifyOtp
+    res.status(400).json({ error: err.message });
   }
 });
+
 
 module.exports = router;
