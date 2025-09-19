@@ -13,6 +13,8 @@ import Track from "./pages/Track";
 import Contact from "./pages/Contact";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
+import Alogin from "./pages/Alogin";
+import Asignup from "./pages/Asignup";
 import "./index.css";
 
 function App() {
@@ -22,7 +24,9 @@ function App() {
   });
   const location = useLocation();
   const navigate = useNavigate();
-  const isLoginPage = location.pathname === "/login";
+  const isLoginPage = location.pathname === "/login" ||
+  location.pathname === "/alogin" ||
+  location.pathname === "/asignup";
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     if (token) {
@@ -68,7 +72,7 @@ function App() {
           <Undo2 size={22} />
         </button>
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/alogin")} 
           className="cursor-pointer flex text-sm pt-1 pb-1 pr-2 rounded-l-full hover:scale-110 pl-2 font-normal bg-black text-[#E5E7EB]"
         >
           Admin Portal
@@ -103,6 +107,8 @@ function App() {
               path="/login"
               element={<Login setLoggedIn={setLoggedIn} />}
             />
+            <Route path="/alogin" element={<Alogin />} />
+            <Route path="/asignup" element={<Asignup />} />
           </Routes>
         {/* </animated.div> */}
       </main>

@@ -1,3 +1,4 @@
+import { jwtDecode } from "jwt-decode";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -21,6 +22,9 @@ const Sidebar = ({ LoggedIn, setLoggedIn }) => {
   const [isHorizontal, setIsHorizontal] = useState(false);
   const navigate = useNavigate();
   const { showWarning } = useWarning(); 
+  // const access = localStorage.getItem("access_token"); // CHANGED
+  //   const refresh = localStorage.getItem("refresh_token");
+  // const decoded = jwtDecode(access);
 
   useEffect(() => {
     const handleResize = () => {
@@ -35,7 +39,6 @@ const Sidebar = ({ LoggedIn, setLoggedIn }) => {
     setDarkMode(!darkMode);
     document.documentElement.classList.toggle("dark");
   };
-
   const menuItems = [
     { name: "Home", icon: <Home size={22} />, path: "/" },
     { name: "Raise Grievance", icon: <FileText size={22} />, path: "/grievance" },
@@ -43,7 +46,6 @@ const Sidebar = ({ LoggedIn, setLoggedIn }) => {
     { name: "About", icon: <Info size={22} />, path: "/about" },
     { name: "Contact Us", icon: <Phone size={22} />, path: "/contact" },
   ];
-
   const handleAuth = () => {
     if (LoggedIn) {
       localStorage.removeItem("access_token");

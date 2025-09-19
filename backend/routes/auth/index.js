@@ -80,6 +80,56 @@ router.post("/verify", async (req, res) => {
   }
 });
 
+router.post("/verifya", async (req, res) => {
+  const { mobile, otp, name, aadhar, address, latitude, longitude, access } = req.body;
+
+  try {
+    const valid = verifyOtp(mobile, otp);
+    if (!valid) {
+      return res.status(400).json({ error: "Invalid or expired OTP" });
+    }
+
+    let user = await User.findOne({ mobile });
+
+    if (!user) {
+      // Create new admin or user depending on access
+      user = await User.create({
+        mobile,
+        name: name || null,
+        aadhar: aadhar || null,
+        address: address || null,
+        latitude: latitude || null,
+        longitude: longitude || null,
+        location: null,
+        access: access || "user",
+      });
+    }
+
+    const payload = {
+      id: user._id,
+      mobile: user.mobile,
+      name: user.name,
+      location: user.location,
+      access: user.access,
+    };
+
+    const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
+    const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: "24h" });
+
+    refreshTokens.push(refreshToken);
+
+    return res.status(200).json({
+      message: "OTP verified successfully",
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      user: payload,
+    });
+  } catch (err) {
+    console.error("Error in verify:", err.message);
+    return res.status(400).json({ error: err.message });
+  }
+});
+
 // 🔹 Refresh token endpoint
 router.post("/refresh", (req, res) => {
   const { refresh_token } = req.body;
