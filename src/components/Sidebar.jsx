@@ -1,3 +1,4 @@
+import { jwtDecode } from "jwt-decode";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -13,16 +14,17 @@ import {
   Sun,
   Moon,
 } from "lucide-react";
-
-// ✅ Optional: use global warning
-import { useWarning } from "../context/WarningContext"; // Add this if you're using global warning context
+import { useWarning } from "../context/WarningContext"; 
 
 const Sidebar = ({ LoggedIn, setLoggedIn }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [isHorizontal, setIsHorizontal] = useState(false);
   const navigate = useNavigate();
-  const { showWarning } = useWarning(); // Optional global warning
+  const { showWarning } = useWarning(); 
+  // const access = localStorage.getItem("access_token"); // CHANGED
+  //   const refresh = localStorage.getItem("refresh_token");
+  // const decoded = jwtDecode(access);
 
   useEffect(() => {
     const handleResize = () => {
@@ -37,7 +39,6 @@ const Sidebar = ({ LoggedIn, setLoggedIn }) => {
     setDarkMode(!darkMode);
     document.documentElement.classList.toggle("dark");
   };
-
   const menuItems = [
     { name: "Home", icon: <Home size={22} />, path: "/" },
     { name: "Raise Grievance", icon: <FileText size={22} />, path: "/grievance" },
@@ -45,24 +46,22 @@ const Sidebar = ({ LoggedIn, setLoggedIn }) => {
     { name: "About", icon: <Info size={22} />, path: "/about" },
     { name: "Contact Us", icon: <Phone size={22} />, path: "/contact" },
   ];
-
   const handleAuth = () => {
     if (LoggedIn) {
-      // ✅ Logout logic
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
+      localStorage.removeItem("user_name");  
+      localStorage.removeItem("user_mobile");
       setLoggedIn(false);
-      showWarning && showWarning("Logout successful"); // ✅ Optional global message
+      showWarning && showWarning("Logout successful"); 
       navigate("/");
     } else {
-      // ✅ Login navigation
       navigate("/login");
     }
   };
 
   return (
     <>
-      {/* Horizontal Mode */}
       {isHorizontal ? (
         <div className={`w-full h-10 flex flex-row justify-end z-50 gap-6 py-1 shadow-md
           ${darkMode ? "bg-[#1E293B] text-white" : "bg-[#000000] text-white"}`}>
@@ -76,7 +75,6 @@ const Sidebar = ({ LoggedIn, setLoggedIn }) => {
             </Link>
           ))}
 
-          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
             className="pr-1 py-1 rounded-md bg-black hover:bg-[#161616] transition"
@@ -84,7 +82,6 @@ const Sidebar = ({ LoggedIn, setLoggedIn }) => {
             {darkMode ? "Light Mode" : "Dark Mode"}
           </button>
 
-          {/* Login/Logout */}
           <button
             onClick={handleAuth}
             className="pr-3 rounded-md bg-black hover:bg-[#161616] transition"
@@ -100,7 +97,6 @@ const Sidebar = ({ LoggedIn, setLoggedIn }) => {
                 ? "bg-[#1E293B] text-white"
                 : "bg-[#000000] text-white shadow-[5px_0px_14px_0px_rgba(0,_0,_0,_0.1)]"
             } ${isOpen ? "w-48 h-screen" : "w-16"}`}>
-              {/* Toggle Button */}
               <button
                 className={`p-2 pl-4 pr-0.5 rounded-xl bg-black ${
                   isOpen ? "w-44" : "w-16"
@@ -116,7 +112,6 @@ const Sidebar = ({ LoggedIn, setLoggedIn }) => {
                 </div>
               </button>
 
-              {/* Menu Items */}
               {isOpen && (
                 <nav className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide">
                   {menuItems.map((item, idx) => (
@@ -147,10 +142,8 @@ const Sidebar = ({ LoggedIn, setLoggedIn }) => {
                 </nav>
               )}
 
-              {/* Bottom Section (Theme + Login/Logout) */}
               {isOpen && (
                 <div className="flex flex-col">
-                  {/* Theme Toggle */}
                   <button
                     onClick={toggleTheme}
                     className="flex items-center gap-3 px-1 py-2 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg rounded-md relative peer transition-all duration-300"
@@ -165,7 +158,6 @@ const Sidebar = ({ LoggedIn, setLoggedIn }) => {
                     </div>
                   </button>
 
-                  {/* Login/Logout */}
                   <button
                     onClick={handleAuth}
                     className="flex  items-center gap-3 px-1 pb-2 bg-black hover:bg-[#161616] hover:scale-110 hover:shadow-lg rounded-md transition-all duration-300"

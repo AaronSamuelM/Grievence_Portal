@@ -47,7 +47,6 @@ const Home = () => {
 
   return (
     <div className="flex h-screen flex-col">
-      {/* Heading */}
       <section className="text-center py-6 bg-gray-50">
         <h1 className="text-4xl font-bold text-[#22406d]">
           Grievance Redressal Portal
@@ -57,7 +56,6 @@ const Home = () => {
         </p>
       </section>
 
-      {/* Quick Action Buttons */}
       <div className="flex justify-center gap-8 py-6 bg-gray-100">
         <Link
           to="/grievance"
@@ -75,9 +73,7 @@ const Home = () => {
         </Link>
       </div>
 
-      {/* About + Useful Links + News */}
       <main className="flex flex-1 flex-col md:flex-row lg:flex-row px-8 py-6 bg-gray-100 gap-6" style={{ backgroundImage: "url('./slider202.png')" }}>
-        {/* About Section with Image */}
         <div className="flex-1 bg-[#ddddddcb] hover:bg-white p-6 rounded-lg shadow-lg flex items-center gap-6 transition-all hover:scale-101 duration-300 ease-in-out">
           <div className="flex-1">
             <h2 className="text-2xl  font-semibold text-[#22406d] mb-3">About</h2>
@@ -90,10 +86,8 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Sidebar: Useful Links + News */}
         <aside className="p-2 gap-2 flex flex-1 flex-col rounded text-blue-700 font-medium  hover:text-blue-900 transition duration-200"
 >
-          {/* Useful Links */}
           <div className="bg-[#ddddddcb] hover:bg-white transition-all hover:scale-101 duration-300 ease-in-out p-6 rounded-lg shadow-lg">
             <h2 className="text-xl font-semibold text-[#22406d] mb-4">
               Useful Links
@@ -129,7 +123,6 @@ const Home = () => {
             </ul>
           </div>
 
-          {/* News Section */}
           <div className=" p-6 rounded-lg bg-[#ddddddcb] transition-all hover:scale-101 duration-300 ease-in-out hover:bg-white shadow-lg">
             <h2 className="text-xl font-semibold text-[#22406d] mb-4">News</h2>
             <ul className="space-y-3">
@@ -155,8 +148,6 @@ const Home = () => {
           </div>
         </aside>
       </main>
-
-      {/* Stats Section */}
       {!err && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-8 py-6 bg-gray-50">
           <div className="bg-blue-100 p-6 rounded-lg text-center shadow-lg hover:bg-blue-200 

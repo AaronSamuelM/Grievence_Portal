@@ -11,8 +11,8 @@ async function sendOtp(mobile) {
 
   try {
     // NOTE: If you don’t want to actually call Fast2SMS in dev, just return otp here
-    otpCache.set(mobile, { otp, expires: Date.now() + 5 * 60 * 1000 });
-    return { otp, message: "OTP generated (mock)" };
+      otpCache.set(mobile, { otp, expires: Date.now() + 5 * 60 * 1000 });
+      return { otp, message: "OTP generated (mock)" };
 
     await axios.post(
       "https://www.fast2sms.com/dev/bulkV2",
@@ -40,25 +40,23 @@ async function sendOtp(mobile) {
 }
 
 function verifyOtp(mobile, otp) {
-  if (!mobile || !otp) throw new Error("Mobile and OTP are required");
+  if (!mobile || !otp) return false;
 
   const storedOtp = otpCache.get(mobile);
-
-  if (!storedOtp) {
-    throw new Error("OTP expired or not found");
-  }
+  if (!storedOtp) return false;
 
   if (storedOtp.expires < Date.now()) {
     otpCache.delete(mobile);
-    throw new Error("OTP expired");
+    return false;
   }
 
   if (storedOtp.otp === Number(otp)) {
     otpCache.delete(mobile);
     return true;
-  } else {
-    throw new Error("Invalid OTP");
   }
+
+  return false;
 }
+
 
 module.exports = { sendOtp, verifyOtp };

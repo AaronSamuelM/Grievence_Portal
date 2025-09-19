@@ -3,7 +3,7 @@ import LocationPicker from "../components/LocationPicker";
 import { X } from "lucide-react";
 import { departments } from "../constants/departments";
 import { useRaiseGrievance } from "../queries/grievance";
-import { useLoginStart, useLoginVerify } from "../queries/auth";
+import { useLoginStart, useLoginVerify, useLoginRefresh } from "../queries/auth";
 
 const useWarnings = () => {
   const [warnings, setWarnings] = useState([]);
@@ -31,16 +31,16 @@ const useCooldown = (initial = 0) => {
   return [cooldown, setCooldown];
 };
 
-function Grievance() {
+function Grievance({ setLoggedIn }) {
   const [selectedProblems, setSelectedProblems] = useState([]);
   const [showOptions, setShowOptions] = useState(false);
   const [verify, setVerify] = useState(false);
   const [verified, setVerified] = useState(false);
-  const [showOverlay, setShowOverlay] = useState(false); // New state for overlay
+  const [showOverlay, setShowOverlay] = useState(false);
   const { warnings, showWarning } = useWarnings();
   const [cooldown, setCooldown] = useCooldown(0);
   const [files, setFiles] = useState([]);
-  const [submissionId, setSubmissionId] = useState(null);  // New state for submission ID
+  const [submissionId, setSubmissionId] = useState(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -56,6 +56,51 @@ function Grievance() {
 
   const dropdownRef = useRef(null);
 
+  // 🔹 Auto load from localStorage + refresh token
+  useEffect(() => { // CHANGED
+    const tokenName = localStorage.getItem("user_name"); // CHANGED
+    const tokenMobile = localStorage.getItem("user_mobile"); // CHANGED
+    const access = localStorage.getItem("access_token"); // CHANGED
+    const refresh = localStorage.getItem("refresh_token"); // CHANGED
+
+    if (access && refresh) { // CHANGED
+      // Attempt refresh on mount
+      useLoginRefresh({ refresh_token: refresh })
+        .then((res) => res.data)
+        .then((data) => {
+          if (data?.access_token) {
+            localStorage.setItem("access_token", data.access_token);
+            if (data.refresh_token) {
+              localStorage.setItem("refresh_token", data.refresh_token);
+            }
+            // 🔹 Save fresh user data
+            localStorage.setItem("user_name", data.user?.name || "");
+            localStorage.setItem("user_mobile", data.user?.mobile || "");
+
+            setVerified(true);
+            setLoggedIn(true);
+            setFormData((prev) => ({
+              ...prev,
+              name: data.user?.name || tokenName || prev.name,
+              mobile: data.user?.mobile || tokenMobile || prev.mobile,
+            }));
+          } else {
+            console.warn("Token refresh failed");
+          }
+        })
+        .catch((err) => console.error("Refresh error:", err));
+    } else if (tokenName || tokenMobile) { // CHANGED
+      setFormData((prev) => ({ // CHANGED
+        ...prev, // CHANGED
+        name: tokenName || prev.name, // CHANGED
+        mobile: tokenMobile || prev.mobile, // CHANGED
+      })); // CHANGED
+      setVerified(true); // CHANGED
+      setLoggedIn(true); // CHANGED
+    } // CHANGED
+  }, [setLoggedIn]); // CHANGED
+
+  // Image Upload
   const handleChange = useCallback(
     (e) => {
       const selectedFiles = Array.from(e.target.files);
@@ -86,46 +131,63 @@ function Grievance() {
     []
   );
 
+  // Department Checkbox
   const handleCheckboxChange = useCallback((problem) => {
-  setSelectedProblems((prev) => {
-    const updatedProblems = prev.includes(problem)
-      ? prev.filter((item) => item !== problem)
-      : [...prev, problem];
+    setSelectedProblems((prev) => {
+      const updatedProblems = prev.includes(problem)
+        ? prev.filter((item) => item !== problem)
+        : [...prev, problem];
 
-    // Set department directly based on the updated problems
-    setFormData((prevData) => ({
-      ...prevData,
-      department: updatedProblems,  // Use updatedProblems directly
-    }));
+      setFormData((prevData) => ({
+        ...prevData,
+        department: updatedProblems,
+      }));
 
-    return updatedProblems;
-  });
-}, []);
+      return updatedProblems;
+    });
+  }, []);
 
-
+  // OTP Request
   const requestOtp = useCallback(() => {
     if (cooldown > 0) return;
+    if (!formData.mobile || formData.mobile.length !== 10) {
+      showWarning("Enter a valid 10-digit mobile number.");
+      return;
+    }
+
     setVerify(true);
     setCooldown(60);
-    useLoginStart({
-      mobile: formData.mobile
-    })
-  }, [formData, cooldown, setCooldown]);
+    useLoginStart({ mobile: formData.mobile })
+      .then(() => {
+        console.log("OTP sent successfully");
+      })
+      .catch((error) => {
+        console.error("Failed to connect to Login Server:", error);
+        showWarning("Failed to send OTP. Try again.");
+      });
+  }, [formData, cooldown, setCooldown, showWarning]);
 
+  // OTP Submit
   const handleOtpSubmit = useCallback(() => {
     useLoginVerify({
       mobile: formData.mobile,
       otp: formData.otp,
     })
-      .then(() => {
+      .then((data) => {
+        localStorage.setItem("access_token", data.data?.access_token);
+        localStorage.setItem("refresh_token", data.data?.refresh_token);
+        localStorage.setItem("user_name", formData.name || ""); // CHANGED
+        localStorage.setItem("user_mobile", formData.mobile || ""); // CHANGED
         setVerified(true);
+        setLoggedIn(true);
       })
       .catch((error) => {
         console.error("Error verifying OTP:", error);
+        showWarning("Invalid OTP. Please try again.");
       });
+  }, [formData, showWarning, setLoggedIn]); // CHANGED
 
-  }, [formData]);
-
+  // Location
   const handleLocationSelect = useCallback(({ lat, lng, address }) => {
     setFormData((prev) => ({
       ...prev,
@@ -135,6 +197,7 @@ function Grievance() {
     }));
   }, []);
 
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -145,35 +208,43 @@ function Grievance() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Submit Grievance
   const handleSubmit = useCallback(
-  async (e) => {
-    e.preventDefault();
-    const tempPayload = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      if (key !== "otp") {
-        tempPayload.append(key, value);
+    async (e) => {
+      e.preventDefault();
+
+      if (!verified) {
+        showWarning("Please verify your mobile number first.");
+        return;
       }
-    });
 
-    files.forEach((img) => {
-      tempPayload.append("images", img.file);
-    });
+      const tempPayload = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key !== "otp") {
+          if (key === "department" && Array.isArray(value)) {
+            value.forEach((dept) => tempPayload.append("department", dept));
+          } else {
+            tempPayload.append(key, value);
+          }
+        }
+      });
 
-    try {
-      // Sending the form data to the backend
-      const response = await useRaiseGrievance(tempPayload); 
-      console.log("Server Response:", response.data.data.id);
-      setSubmissionId(response.data.data.id);
-        setShowOverlay(true);  // Show the overlay with the ID
-      
-    } catch (error) {
-      console.error("Error submitting grievance:", error);
-      showWarning("Failed to submit grievance. Please try again.");
-    }
-  },
-  [formData, files]
-);
+      files.forEach((img) => {
+        tempPayload.append("images", img.file);
+      });
 
+      try {
+        const response = await useRaiseGrievance(tempPayload);
+        console.log("Server Response:", response.data.data.id);
+        setSubmissionId(response.data.data.id);
+        setShowOverlay(true);
+      } catch (error) {
+        console.error("Error submitting grievance:", error);
+        showWarning("Failed to submit grievance. Please try again.");
+      }
+    },
+    [formData, files, verified, showWarning]
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -186,8 +257,7 @@ function Grievance() {
             {warnings.map((w) => (
               <div
                 key={w.id}
-                className="px-4 py-2 rounded-lg shadow-lg text-white bg-yellow-500 
-                         transition-all duration-500 ease-in-out"
+                className="px-4 py-2 rounded-lg shadow-lg text-white bg-yellow-500 transition-all duration-500 ease-in-out"
               >
                 {w.msg}
               </div>
@@ -201,37 +271,41 @@ function Grievance() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5 text-gray-700">
             {/* Mobile + OTP */}
-            <div className="flex flex-col md:flex-row gap-3">
-              <input
-                type="tel"
-                placeholder="Mobile Number"
-                value={formData.mobile}
-                disabled={verified}
-                onChange={(e) => {
-                  setFormData((prev) => ({ ...prev, mobile: e.target.value }));
-                }}
-                className={`flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition ${verified
-                    ? "bg-gray-100 text-gray-500 cursor-not-allowed"
-                    : "text-gray-800 focus:ring-2 focus:ring-blue-500"
+            {!verified && ( // CHANGED
+              <div className="flex flex-col md:flex-row gap-3"> {/* CHANGED */}
+                <input
+                  type="tel"
+                  placeholder="Mobile Number"
+                  value={formData.mobile}
+                  disabled={verified}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, mobile: e.target.value }))
+                  }
+                  className={`flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition ${
+                    verified
+                      ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                      : "text-gray-800 focus:ring-2 focus:ring-blue-500"
                   }`}
-              />
-              {!verified && (
-                <button
-                  type="button"
-                  onClick={requestOtp}
-                  disabled={cooldown > 0}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 hover:scale-105 transition disabled:opacity-50"
-                >
-                  {cooldown > 0 ? `Resend in ${cooldown}s` : "Send OTP"}
-                </button>
-              )}
-            </div>
+                />
+                {!verified && (
+                  <button
+                    type="button"
+                    onClick={requestOtp}
+                    disabled={cooldown > 0}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 hover:scale-105 transition disabled:opacity-50"
+                  >
+                    {cooldown > 0 ? `Resend in ${cooldown}s` : "Send OTP"}
+                  </button>
+                )}
+              </div> 
+            )} {/* CHANGED */}
 
             {verify && !verified && (
               <div className="flex flex-col md:flex-row gap-3">
                 <input
                   type="tel"
                   placeholder="Enter OTP"
+                  value={formData.otp}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, otp: e.target.value }))
                   }
@@ -260,6 +334,7 @@ function Grievance() {
                   }
                   className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 transition"
                 />
+
                 {/* Title */}
                 <input
                   type="text"
@@ -297,10 +372,11 @@ function Grievance() {
                   </button>
 
                   <div
-                    className={`absolute left-0 mt-2 w-full bg-white border rounded-lg shadow-lg overflow-y-scroll transition-all duration-300 max-h-40 z-20 ${showOptions
-                      ? "opacity-100 scale-100"
-                      : "opacity-0 scale-95 pointer-events-none"
-                      }`}
+                    className={`absolute left-0 mt-2 w-full bg-white border rounded-lg shadow-lg overflow-y-scroll transition-all duration-300 max-h-40 z-20 ${
+                      showOptions
+                        ? "opacity-100 scale-100"
+                        : "opacity-0 scale-95 pointer-events-none"
+                    }`}
                   >
                     {departments.map((problem, idx) => (
                       <label
@@ -346,8 +422,7 @@ function Grievance() {
                           />
                           <button
                             onClick={() => removeImage(file.name)}
-                            className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full 
-                                     opacity-80 hover:opacity-100"
+                            className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-80 hover:opacity-100"
                           >
                             <X size={14} />
                           </button>
@@ -376,9 +451,7 @@ function Grievance() {
               </div>
             )}
           </form>
-          
         </div>
-
         {/* Sidebar */}
         <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 flex flex-col gap-6 transition hover:shadow-xl">
           <div>
@@ -405,7 +478,9 @@ function Grievance() {
           </div>
 
           <div>
-            <h3 className="text-lg text-black md:text-xl font-semibold mb-4">News</h3>
+            <h3 className="text-lg text-black md:text-xl font-semibold mb-4">
+              News
+            </h3>
             <ul className="space-y-2 text-blue-600">
               <li>
                 <a href="#" className="hover:underline">
@@ -421,14 +496,17 @@ function Grievance() {
           </div>
         </div>
       </div>
+
+      {/* Overlay */}
       {showOverlay && (
-        <div className="fixed inset-0  bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-1000">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full text-center">
             <h2 className="text-2xl font-bold text-gray-700 mb-4">
-              Your Grievance ID: {submissionId}  {/* Display Grievance ID */}
+              Your Grievance ID: {submissionId}
             </h2>
             <p className="text-gray-600 mb-6">
-              Thank you for submitting your grievance. You can use this ID for future reference.
+              Thank you for submitting your grievance. You can use this ID for
+              future reference.
             </p>
             <button
               onClick={() => setShowOverlay(false)}
